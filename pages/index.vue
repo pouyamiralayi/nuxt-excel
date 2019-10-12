@@ -68,6 +68,11 @@
   const strapi = new Strapi(apiUrl)
   import { mapMutations } from 'vuex'
   export default {
+      created(){
+        if(this.isLoggedIn){
+            this.$router.push('dashboard')
+        }
+      },
     components:{
       AppLogo,
       // 'b-form':BForm,
@@ -110,6 +115,11 @@
       ...mapMutations({
         setUser: 'auth/setUser'
       })
-    }
+    },
+      computed:{
+          isLoggedIn(){
+              return this.$store.getters['auth/username']
+          },
+      }
   }
 </script>

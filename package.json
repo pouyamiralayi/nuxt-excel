@@ -20,6 +20,7 @@
     "js-cookie": "^2.2.1",
     "nuxt": "^2.0.0",
     "strapi-sdk-javascript": "^0.3.3",
+    "vue-moment-jalaali": "^2.0.0",
     "vue-persian-datetime-picker": "^2.1.2"
   },
   "devDependencies": {}

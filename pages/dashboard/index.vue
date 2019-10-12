@@ -1,9 +1,9 @@
 <template>
   <div>
-<!--    <section v-if="loading" class="container-fluid" style="height: 100vh;display: flex; justify-content: center;align-items: center">-->
-<!--      <b-spinner variant="success" type="grow"></b-spinner>-->
-<!--    </section>-->
-    <section class="container-fluid" dir="rtl" v-if="isLoggedIn">
+    <section v-if="loading" class="container-fluid" style="height: 60vh;display: flex; justify-content: center;align-items: center">
+      <b-spinner variant="success" type="grow"></b-spinner>
+    </section>
+    <section v-else class="container-fluid" dir="rtl" v-if="isLoggedIn">
       <div>
         <!--<b-row>-->
           <!--<b-col cols="12" class="text-center">-->
@@ -16,6 +16,27 @@
             <!--</h2>-->
           <!--</b-col>-->
         <!--</b-row>-->
+        <client-only>
+          <div style="display: flex; justify-content: flex-start">
+            <div class="form-group mt-3">
+              <input v-model="customer_no" type="text" class="form-control pt-2 pb-2 mt-2" placeholder="کد مشتری را وارد نمایید...">
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="text-right">
+              <span>از تاریخ:</span><br>
+              <date-picker v-model="dateFrom"></date-picker>
+            </div>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="text-right">
+              <span>تا تاریخ:</span><br>
+              <date-picker v-model="dateTo" class=""></date-picker>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="form-group mt-4">
+              <b-button type="submit" variant="danger" @click="removeRange">حذف</b-button>
+            </div>
+          </div>
+        </client-only>
         <b-modal id="modal-new" dir="ltr" title="تعریف اکسل" busy>
           <add-excel></add-excel>
           <div slot="modal-footer"></div>
@@ -58,7 +79,9 @@
           >
             <div class="card-body">
               <h5 class="card-title subtitle-mini"><span class="ml-1">📝</span>{{ excel.customer_name || 'بدون نام'}}</h5>
-              <p class="card-text subtitle-mini"><span class="label">کد:</span>&nbsp;{{ excel.customer_no || 'کد مشتری ثبت نشده است' }}</p>
+              <p class="card-text subtitle-mini"><p class="label">کد مشتری:</p>&nbsp;{{ excel.customer_no || 'کد مشتری ثبت نشده است' }}</p>
+              <p class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ excel.record_no || 'ثبت نشده است' }}</p>
+              <p class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{excel.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}</p>
               <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ excel.description || 'شرحی ثبت نشده است' }}</p>
               <p  class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{ excel.owed || '0' }}</p>
               <p class="card-text subtitle-mini" style="color: #41b883"><span class="label">بستانکار:</span>&nbsp;{{ excel.owned || '0' }}</p>
@@ -84,7 +107,8 @@
 </template>
 
 <script>
-  // import CustomersQuery from '../../apollo/queries'
+    import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
+    // import CustomersQuery from '../../apollo/queries'
   import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
   import AppLogo from '~/components/AppLogo.vue'
   import AddExcel from '~/components/AddExcel.vue'
@@ -93,13 +117,23 @@
   import Strapi from 'strapi-sdk-javascript/build/main'
   import {mapGetters} from 'vuex'
   import Header from "../../components/Header";
-
+    import axios from "axios";
+  import moment from 'moment-jalaali'
   const apiUrl = process.env.API_URL || 'http://localhost:1337'
   const strapi = new Strapi(apiUrl)
 
   export default {
+      created(){
+        if(!this.isLoggedIn){
+            this.$router.push('/')
+        }
+      },
     data() {
       return {
+          loading:false,
+          customer_no:'',
+          dateFrom:'',
+          dateTo:'',
           customers:[],
         query: '',
         queryCustomer: '',
@@ -107,6 +141,7 @@
       }
     },
     components: {
+        datePicker: VuePersianDatetimePicker,
         Header,
       AppLogo,
       AddExcel,
@@ -114,6 +149,35 @@
       EditExcel,
     },
     methods: {
+      async removeRange(){
+          try{
+              this.loading = true
+            const fdateFrom = moment( this.dateFrom ,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+            const fdateTo =  moment(this.dateTo,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+          const response = await axios.get(`http://localhost:1337/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+            if(response.data == null || response.data === undefined){
+                alert("داده ای یافت نشد")
+                return
+            }
+            for(const res of response.data){
+                if(res.id){
+                    try{
+                      const re = await strapi.deleteEntry('customers',res.id)
+                      console.log(res)
+                    }
+                    catch (e) {
+                        console.log(e)
+                    }
+                  }
+            }
+            alert("حذف با موفقیت انجام شد")
+              this.loading = false
+          }
+          catch (e) {
+              console.log(e)
+              this.loading = false
+          }
+      },
       showRemoveModal(id) {
         this.eid = id
         this.$bvModal.show('modal-remove-excel')
@@ -136,9 +200,9 @@
         isLoggedIn(){
           return this.$store.getters['auth/username']
         },
-        loading(){
-          return this.$store.getters['customers/loading']
-        },
+        // loading(){
+        //   return this.$store.getters['customers/loading']
+        // },
       filteredList(){
           if(this.query == ""){
             return this.customers
@@ -146,6 +210,7 @@
         return this.customers.filter(excel => {
           return (excel.customer_name && excel.customer_name.includes(this.query)) ||
             (excel.customer_no && excel.customer_no.toLowerCase().includes(this.query.toLowerCase())) ||
+            (excel.record_no && excel.record_no.toLowerCase().includes(this.query.toLowerCase())) ||
             (excel.date && excel.date.toLowerCase().includes(this.query.toLowerCase())) ||
             (excel.description && excel.description.includes(this.query))
         })
@@ -158,7 +223,12 @@
           customers: {
               prefetch: true,
               query: CustomersQuery
-          }
+          },
+          // watchLoading(isLoading) {
+          //     if (this.loading !== isLoading) {
+          //         this.loading = isLoading;
+          //     }
+          // },
       },
     // async fetch({store}) {
       // store.commit('customers/emptyList')

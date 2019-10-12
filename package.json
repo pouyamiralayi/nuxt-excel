@@ -1,0 +1,26 @@
+{
+  "name": "nuxt-excel",
+  "version": "1.0.0",
+  "description": "admin dashboard for strapi-excel",
+  "author": "Pouya Miralayi",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/apollo": "^4.0.0-rc14",
+    "@nuxtjs/axios": "^5.3.6",
+    "bootstrap": "^4.1.3",
+    "bootstrap-vue": "^2.0.0",
+    "cookieparser": "^0.1.0",
+    "graphql": "^14.5.8",
+    "js-cookie": "^2.2.1",
+    "nuxt": "^2.0.0",
+    "strapi-sdk-javascript": "^0.3.3",
+    "vue-persian-datetime-picker": "^2.1.2"
+  },
+  "devDependencies": {}
+}

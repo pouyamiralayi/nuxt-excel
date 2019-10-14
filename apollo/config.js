@@ -1,6 +1,6 @@
 export default function(context){
 
   return {
-    httpEndpoint: 'http://localhost:1337/graphql'
+    httpEndpoint: process.env.APOLLO_URL || 'http://localhost:1337/graphql'
   }
 }

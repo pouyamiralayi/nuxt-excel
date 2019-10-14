@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div v-if="isLoggedIn">
     <section v-if="loading" class="container-fluid" style="height: 60vh;display: flex; justify-content: center;align-items: center">
       <b-spinner variant="success" type="grow"></b-spinner>
     </section>
-    <section v-else class="container-fluid" dir="rtl" v-if="isLoggedIn">
+    <section v-else class="container-fluid" dir="rtl" >
       <div>
         <!--<b-row>-->
           <!--<b-col cols="12" class="text-center">-->
@@ -73,18 +73,19 @@
         </b-row>
         <b-row align-h="start" class="container-fluid">
           <b-card
-            v-for="excel in filteredList"
-            :key="excel.id"
+            v-if="filteredList && filteredList.length"
+            v-for="customer in filteredList"
+            :key="customer.id"
             class="card"
           >
             <div class="card-body">
-              <h5 class="card-title subtitle-mini"><span class="ml-1">📝</span>{{ excel.customer_name || 'بدون نام'}}</h5>
-              <p class="card-text subtitle-mini"><p class="label">کد مشتری:</p>&nbsp;{{ excel.customer_no || 'کد مشتری ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ excel.record_no || 'ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{excel.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ excel.description || 'شرحی ثبت نشده است' }}</p>
-              <p  class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{ excel.owed || '0' }}</p>
-              <p class="card-text subtitle-mini" style="color: #41b883"><span class="label">بستانکار:</span>&nbsp;{{ excel.owned || '0' }}</p>
+              <h5 class="card-title subtitle-mini"><span class="ml-1">📝</span>{{ customer.customer_name || 'بدون نام'}}</h5>
+              <div class="card-text subtitle-mini"><p class="label">کد مشتری:</p>&nbsp;{{ customer.customer_no || 'کد مشتری ثبت نشده است' }}</div>
+              <div class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ customer.record_no || 'ثبت نشده است' }}</div>
+              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{customer.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}</div>
+              <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ customer.description || 'شرحی ثبت نشده است' }}</p>
+              <p  class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{ customer.owed || '0' }}</p>
+              <p class="card-text subtitle-mini" style="color: #41b883"><span class="label">بستانکار:</span>&nbsp;{{ customer.owned || '0' }}</p>
 <!--              <p class="subtitle-mini">مشتری ثبت نشده است</p>-->
 <!--              <b-badge class="subtitle-icon" style="padding:8px;background-color:white;cursor: pointer;"-->
 <!--                       @click="editFile(excel.id)" pill>🖊️-->
@@ -99,7 +100,7 @@
 <!--              </router-link>-->
             </div>
           </b-card>
-          <p v-if="!filteredList.length"><span>😔</span> <span>بدون نتیجه</span></p>
+          <p v-if="filteredList && !filteredList.length"><span>😔</span> <span>بدون نتیجه</span></p>
         </b-row>
       </div>
     </section>
@@ -107,8 +108,7 @@
 </template>
 
 <script>
-    import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
-    // import CustomersQuery from '../../apollo/queries'
+  import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
   import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
   import AppLogo from '~/components/AppLogo.vue'
   import AddExcel from '~/components/AddExcel.vue'
@@ -119,10 +119,17 @@
   import Header from "../../components/Header";
     import axios from "axios";
   import moment from 'moment-jalaali'
+  // const apiUrl = process.env.API_URL || ''
   const apiUrl = process.env.API_URL || 'http://localhost:1337'
   const strapi = new Strapi(apiUrl)
 
   export default {
+      apollo: {
+          customers: {
+              prefetch: true,
+              query: CustomersQuery
+          },
+      },
       created(){
         if(!this.isLoggedIn){
             this.$router.push('/')
@@ -150,11 +157,15 @@
     },
     methods: {
       async removeRange(){
+          if(!this.customer_no){
+              alert("شمارۀ مشتری را مشخص نمایید")
+              return
+          }
           try{
               this.loading = true
             const fdateFrom = moment( this.dateFrom ,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
             const fdateTo =  moment(this.dateTo,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-          const response = await axios.get(`http://localhost:1337/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+          const response = await axios.get(apiUrl+`/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
             if(response.data == null || response.data === undefined){
                 alert("داده ای یافت نشد")
                 return
@@ -204,10 +215,10 @@
         //   return this.$store.getters['customers/loading']
         // },
       filteredList(){
-          if(this.query == ""){
-            return this.customers
-          }
-        return this.customers.filter(excel => {
+        if(this.query == ""){
+          return this.customers
+        }
+        return this.customers && this.customers.filter(excel => {
           return (excel.customer_name && excel.customer_name.includes(this.query)) ||
             (excel.customer_no && excel.customer_no.toLowerCase().includes(this.query.toLowerCase())) ||
             (excel.record_no && excel.record_no.toLowerCase().includes(this.query.toLowerCase())) ||
@@ -219,68 +230,6 @@
       //   return this.$store.getters['customers/list']
       // }
     },
-      apollo: {
-          customers: {
-              prefetch: true,
-              query: CustomersQuery
-          },
-          // watchLoading(isLoading) {
-          //     if (this.loading !== isLoading) {
-          //         this.loading = isLoading;
-          //     }
-          // },
-      },
-    // async fetch({store}) {
-      // store.commit('customers/emptyList')
-     //      const response = await strapi.request('post', '/graphql', {
-     //        data: {
-     //          query: `query {
-     //            customers{
-     //              id
-     //              fin_year
-     //              date
-     //              customer_no
-     //              customer_name
-     //              description
-     //              owed
-     //              owned
-     //            }
-     //          }
-     //          `
-     //        }
-     //      })
-     // response.data.customers.forEach(customer => {
-     //    // restaurant.image.url = `${apiUrl}${restaurant.image.url}`
-     //    store.commit('customers/add', {
-     //      id: customer.id,
-     //      ...customer
-     //    })
-     //  })
-        // store.commit('customers/loading',false)
-        // store.commit('customers/emptyList')
-      // const responseCustomers = await strapi.request('post', '/graphql', {
-      //   data: {
-      //     query: `query {
-      //               customers{
-      //                 id
-      //                 customer_name
-      //                 customer_phone_number
-      //                 excels{
-      //                   id
-      //                   file_name
-      //                 }
-      //               }
-      //           }
-      //     `
-      //   }
-      // })
-      // responseCustomers.data.customers.forEach(customer => {
-      //   store.commit('customers/add', {
-      //     id: customer.id,
-      //     ...customer
-      //   })
-      // })
-    // }
   }
 </script>
 

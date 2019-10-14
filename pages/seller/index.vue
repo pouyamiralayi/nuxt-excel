@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div v-if="isLoggedIn">
     <section v-if="loading" class="container-fluid" style="height: 100vh;display: flex; justify-content: center;align-items: center">
       <b-spinner variant="success" type="grow"></b-spinner>
     </section>
-    <section v-else class="container-fluid" dir="rtl" v-if="isLoggedIn">
+    <section v-else class="container-fluid" dir="rtl">
       <div>
         <!--<b-row>-->
           <!--<b-col cols="12" class="text-center">-->
@@ -72,20 +72,27 @@
         </b-row>
         <b-row align-h="start" class="container-fluid">
           <b-card
+            v-if="filteredList && filteredList.length"
             v-for="seller in filteredList"
             :key="seller.id"
             class="card"
           >
             <div class="card-body">
               <h5 class="card-title subtitle-mini"><p class="ml-1">📝</p>{{ seller.seller_name || 'بدون نام'}}</h5>
-              <p class="card-text subtitle-mini"><p class="label">کد فروشنده:</p>&nbsp;{{ seller.seller_no || 'کد فروشنده ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini"><p class="label">کد فاکتور:</p>{{ seller.record_no || 'شرحی ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{ seller.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini"><p class="label">تاریخ انقضا:</p>&nbsp;{{ seller.expire_date | moment("jYYYY/jMM/jDD") || 'تاریخ انقضا ثبت نشده است' }}</p>
+              <div class="card-text subtitle-mini"><p class="label">کد فروشنده:</p>&nbsp;{{ seller.seller_no || 'کد فروشنده ثبت نشده است' }}</div>
+              <br>
+              <div class="card-text subtitle-mini"><p class="label">کد فاکتور:</p>{{ seller.record_no || 'شرحی ثبت نشده است' }}</div>
+              <br>
+              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{ seller.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}</div>
+              <br>
+              <div class="card-text subtitle-mini"><p class="label">تاریخ انقضا:</p>&nbsp;{{ seller.expire_date | moment("jYYYY/jMM/jDD") || 'تاریخ انقضا ثبت نشده است' }}</div>
+              <br>
               <p class="card-text subtitle-mini">{{ seller.description || 'شرحی ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini"><p class="label" style="color: cornflowerblue">نام محصول:</p>&nbsp;<span class="subtitle-mini" style="color: cornflowerblue">{{ seller.product || 'نام محصول ثبت نشده است' }}</span></p>
+              <div class="card-text subtitle-mini"><p class="label" style="color: cornflowerblue">نام محصول:</p>&nbsp;<span class="subtitle-mini" style="color: cornflowerblue">{{ seller.product || 'نام محصول ثبت نشده است' }}</span></div>
+              <br>
               <p class="card-text subtitle-mini"><span class="label">کد محصول:</span>&nbsp;{{ seller.product_no || 'کد محصول ثبت نشده است' }}</p>
-              <p class="card-text subtitle-mini" ><p class="label subtitle-mini" style="color: #41b883">قابل پرداخت:</p>&nbsp;<span class="label subtitle-mini" style="color: #41b883">{{ seller.payment || ' ثبت نشده است' }}</span></p>
+              <div class="card-text subtitle-mini" ><p class="label subtitle-mini" style="color: #41b883">قابل پرداخت:</p>&nbsp;<span class="label subtitle-mini" style="color: #41b883">{{ seller.payment || ' ثبت نشده است' }}</span></div>
+              <br>
               <p class="card-text subtitle-mini"><span class="label">واحد:</span>&nbsp;{{ seller.first_unit || ' ثبت نشده است' }}</p>
               <p class="card-text subtitle-mini"><span class="label">مقدار:</span>&nbsp;{{ seller.quantity || ' ثبت نشده است' }}</p>
               <p class="card-text subtitle-mini"><span class="label">نرخ:</span>&nbsp;{{ seller.rate || ' ثبت نشده است' }}</p>
@@ -103,7 +110,7 @@
 <!--              </router-link>-->
             </div>
           </b-card>
-          <p v-if="!filteredList.length"><span>😔</span> <span>بدون نتیجه</span></p>
+          <p v-if="filteredList && !filteredList.length"><span>😔</span> <span>بدون نتیجه</span></p>
         </b-row>
       </div>
     </section>
@@ -125,6 +132,7 @@
   import SellersQuery from '@/apollo/queries/SellersQuery.gql'
 
 
+  // const apiUrl = process.env.API_URL || ''
   const apiUrl = process.env.API_URL || 'http://localhost:1337'
   const strapi = new Strapi(apiUrl)
 
@@ -156,11 +164,15 @@
     },
     methods: {
         async removeRange(){
-              this.loading = true
+            if(!this.seller_no){
+                alert("شمارۀ فروشنده را مشخص نمایید")
+                return
+            }
             try{
+              this.loading = true
               const fdateFrom = moment( this.dateFrom ,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
               const fdateTo =  moment(this.dateTo,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-              const response = await axios.get(`http://localhost:1337/sellers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+              const response = await axios.get(apiUrl+`/sellers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&seller_no=${this.seller_no}`)
               if(response.data == null || response.data === undefined){
                   alert("داده ای یافت نشد")
                   return
@@ -210,10 +222,10 @@
         //     return this.$store.getters['sellers/loading']
         // },
       filteredList(){
-            if(this.query == ""){
-                return this.sellers
-            }
-        return this.sellers.filter(seller => {
+        if(this.query == ""){
+            return this.sellers
+        }
+        return this.sellers && this.sellers.filter(seller => {
           return (seller.seller_name && seller.seller_name.includes(this.query)) ||
             (seller.seller_no && seller.seller_no.toLowerCase().includes(this.query.toLowerCase())) ||
             (seller.record_no && seller.record_no.toLowerCase().includes(this.query.toLowerCase())) ||
@@ -229,64 +241,6 @@
       //   return this.$store.getters['sellers/list']
       // }
     },
-    // async fetch({store}) {
-      // store.commit('customers/emptyList')
-      // const response = await strapi.request('post', '/graphql', {
-      //   data: {
-      //     query: `
-      //     query {
-      //        sellers{
-      //           id
-      //           fin_year
-      //           record_no
-      //           date
-      //           expire_date
-      //           seller_no
-      //           seller_name
-      //           description
-      //           product_no
-      //           product
-      //           payment
-      //           first_unit
-      //           quantity
-      //           rate
-      //         }
-      //     }
-      //     `
-      //   }
-      // })
-      //  response.data.sellers.forEach(seller => {
-      //   // restaurant.image.url = `${apiUrl}${restaurant.image.url}`
-      //   store.commit('sellers/add', {
-      //     id: seller.id,
-      //     ...seller
-      //   })
-      // })
-        // store.commit('sellers/loading',false)
-      // store.commit('customers/emptyList')
-      // const responseCustomers = await strapi.request('post', '/graphql', {
-      //   data: {
-      //     query: `query {
-      //               customers{
-      //                 id
-      //                 customer_name
-      //                 customer_phone_number
-      //                 excels{
-      //                   id
-      //                   file_name
-      //                 }
-      //               }
-      //           }
-      //     `
-      //   }
-      // })
-      // responseCustomers.data.customers.forEach(customer => {
-      //   store.commit('customers/add', {
-      //     id: customer.id,
-      //     ...customer
-      //   })
-      // })
-    // }
   }
 </script>
 

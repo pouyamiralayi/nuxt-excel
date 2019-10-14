@@ -64,11 +64,14 @@
   // import {BRow,BCol, BForm, BFormInput, BFormGroup} from 'bootstrap-vue/es/components';
   import AppLogo from '~/components/AppLogo.vue'
 
+  // const apiUrl = process.env.API_URL || ''
   const apiUrl = process.env.API_URL || 'http://localhost:1337'
+  // console.log('apiUrl',apiUrl)
   const strapi = new Strapi(apiUrl)
   import { mapMutations } from 'vuex'
   export default {
       created(){
+        console.log(process.env.API_URL)
         if(this.isLoggedIn){
             this.$router.push('dashboard')
         }

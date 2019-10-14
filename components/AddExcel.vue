@@ -51,7 +51,7 @@
 <script>
   import Strapi from 'strapi-sdk-javascript/build/main'
 import axios from "axios";
-  const apiUrl = process.env.API_URL || 'http://localhost:1337'
+  const apiUrl = process.env.API_URL || ''
   const strapi = new Strapi(apiUrl)
 
   export default {
@@ -77,7 +77,7 @@ import axios from "axios";
       async sendFile() {
         this.loading = true
           try{
-            const entity = await axios.get('http://localhost:1337/excels?file_name=default')
+            const entity = await axios.get(apiUrl+'/excels?file_name=default')
               const excel_id = entity.data[0].id
             const form = new FormData();
             form.append('ref', 'excel');
@@ -87,7 +87,7 @@ import axios from "axios";
             const files = await strapi.upload(form);
               const file_id = files[0].id
             // console.log(files)
-            const response = await axios.post(`http://localhost:1337/updatehook?id=${excel_id}&file_name=default&file_id=${file_id}`)
+            const response = await axios.post(apiUrl`/updatehook?id=${excel_id}&file_name=default&file_id=${file_id}`)
             this.loading = false
             alert('فایل با موفقیت پردازش شد.')
           }
@@ -95,38 +95,6 @@ import axios from "axios";
               this.loading = false
               alert(e)
           }
-        // console.log(entity)
-
-        // try {
-        //     const entity = strapi.getEntries({file_name: 'default'})
-        //     const entity = await strapi.createEntry('excels', {
-        //       file_name: this.fileName,
-        //       customer: this.selected,
-        //       // excel_file: files.url
-        //     })
-        // }
-        // catch (e) {
-        //     this.loading = false
-        //     alert(entity)
-        // }
-        // try{
-        //   const form = new FormData();
-        //   form.append('ref', 'excel');
-        //   form.append('refId', entity.id);
-        //   form.append('field', 'excel_file');
-        //   form.append('files', this.file);
-        //   const files = await strapi.upload(form);
-        //   console.log(files)
-        //   this.loading = false
-        //   alert('فایل با موفقیت ایجاد شد.')
-        //   // this.$store.commit('excels/add', {
-        //   //   id: entity.id,
-        //   //   ...entity
-        //   // })
-        // } catch (e) {
-        //   this.loading = false
-        //   alert(e)
-        // }
       }
     },
     computed: {

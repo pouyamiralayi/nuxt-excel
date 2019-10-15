@@ -157,6 +157,7 @@
 
 <script>
     import moment from 'moment-jalaali'
+    import qs from 'qs'
   // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
   import axios from "axios";
 
@@ -326,7 +327,7 @@
                 this.$router.push('/')
                 return
             }
-            const resp = await axios.get(apiUrl + `/sellers/count?product_contains=${this.seller_product_query}`)
+            const resp = await axios.get(apiUrl + '/sellers/count?product_contains='+this.seller_product_query)
             if (resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -339,7 +340,18 @@
                 alert("داده ای یافت نشد.")
                 return
             }
-            const res = await axios.get(apiUrl+`/sellers?product_contains=${this.seller_product_query}`)
+            // const res = await axios(apiUrl + '/sellers/',
+            const res = await axios(apiUrl + '/sellers?product_contains='+this.seller_product_query)
+                // {
+              //     method:'get',
+              //       params:{
+              //           product_contains:this.seller_product_query,
+              //       },
+              //       paramsSerializer: function(params){
+              //           const query = qs.stringify(params)
+              //           return query
+              //       }
+              // })
             if(res.data){
                 // console.log(res.data)
                 this.sellers = res.data

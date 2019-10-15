@@ -6,9 +6,9 @@
     <section v-else class="container-fluid" dir="rtl">
       <div>
         <br>
-        <p class="text-right w-100">
-          <span>تعداد کل آیتم ها:</span>&nbsp;&nbsp;&nbsp;{{sellers.length || 0}}
-        </p>
+<!--        <p class="text-right w-100">-->
+<!--          <span>تعداد کل آیتم ها:</span>&nbsp;&nbsp;&nbsp;{{sellers.length || 0}}-->
+<!--        </p>-->
         <!--<b-row>-->
           <!--<b-col cols="12" class="text-center">-->
             <!--<app-logo/>-->
@@ -93,6 +93,7 @@
             </div>
           </div>
         </b-row>
+        <hr>
         <br>
         <br>
         <b-row align-h="center" class="container-fluid">

@@ -95,6 +95,7 @@
           <div class="col-md-3">
             <div class="form-group mt-3 text-center">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
+              &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
             </div>
           </div>
         </b-row>
@@ -224,6 +225,8 @@
             }
         },
         async mounted() {
+            this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
+            // console.log(this.$apolloHelpers.getToken())
             await this.$apollo.queries.customers.start()
         },
         data() {
@@ -256,6 +259,9 @@
             EditExcel,
         },
         methods: {
+            reload(){
+              location.reload()
+            },
             async searchCustomerNo(){
                 if(!this.customer_no_query){
                     alert("کد مشتری را وارد نمایید!")

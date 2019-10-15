@@ -89,6 +89,7 @@
           <div class="col-md-3">
             <div class="form-group mt-3 text-center">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
+              &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
             </div>
           </div>
         </b-row>
@@ -256,6 +257,9 @@
       EditExcel,
     },
     methods: {
+        reload(){
+          location.reload()
+        },
         async searchSellerNo(){
             if(!this.seller_no_query){
                 alert("کد فروشنده را وارد نمایید!")

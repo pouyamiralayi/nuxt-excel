@@ -105,10 +105,10 @@
         try {
           this.loading = true
           const response = await strapi.login(this.email, this.password)
+            // console.log(response)
           // this.loading = false
           // this.$store.commit('auth/setUser', response.user)
-          this.setUser(response.user)
-          // console.log(response.user)
+          this.setUser({jwt:response.jwt, ...response.user})
           this.$router.push('dashboard')
         } catch (err) {
           // this.loading = false

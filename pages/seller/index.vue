@@ -5,6 +5,9 @@
     </section>
     <section v-else class="container-fluid" dir="rtl">
       <div>
+        <p class="text-right w-100">
+          <span>تعداد کل آیتم ها:</span>&nbsp;&nbsp;&nbsp;{{sellers.length || 0}}
+        </p>
         <!--<b-row>-->
           <!--<b-col cols="12" class="text-center">-->
             <!--<app-logo/>-->
@@ -91,7 +94,7 @@
               <div class="card-text subtitle-mini"><p class="label" style="color: cornflowerblue">نام محصول:</p>&nbsp;<span class="subtitle-mini" style="color: cornflowerblue">{{ seller.product || 'نام محصول ثبت نشده است' }}</span></div>
               <br>
               <p class="card-text subtitle-mini"><span class="label">کد محصول:</span>&nbsp;{{ seller.product_no || 'کد محصول ثبت نشده است' }}</p>
-              <div class="card-text subtitle-mini" ><p class="label subtitle-mini" style="color: #41b883">قابل پرداخت:</p>&nbsp;<span class="label subtitle-mini" style="color: #41b883">{{ seller.payment || ' ثبت نشده است' }}</span></div>
+              <div class="card-text subtitle-mini" ><p class="label" style="color: #41b883">قابل پرداخت:</p>&nbsp;<span class="subtitle-mini label" style="color: #41b883">{{ seller.payment || ' ثبت نشده است' }}</span></div>
               <br>
               <p class="card-text subtitle-mini"><span class="label">واحد:</span>&nbsp;{{ seller.first_unit || ' ثبت نشده است' }}</p>
               <p class="card-text subtitle-mini"><span class="label">مقدار:</span>&nbsp;{{ seller.quantity || ' ثبت نشده است' }}</p>
@@ -119,7 +122,7 @@
 
 <script>
   import moment from 'moment-jalaali'
-  import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
+  // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
   import axios from "axios";
 
   import AppLogo from '~/components/AppLogo.vue'
@@ -140,7 +143,22 @@
       apollo: {
           sellers: {
               prefetch: true,
-              query: SellersQuery
+              query: SellersQuery,
+              watchLoading(isLoading) {
+                  // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
+                  // following is not working:
+                  if (isLoading) {
+                    this.loading = true
+                  }
+                  else {
+                      this.loading = false
+                  }
+              }
+          },
+      },
+      created(){
+          if(!this.isLoggedIn){
+              this.$router.push('/')
           }
       },
     data() {
@@ -156,7 +174,7 @@
       }
     },
     components: {
-        datePicker: VuePersianDatetimePicker,
+        datePicker: () => import('vue-persian-datetime-picker'),
         AppLogo,
       AddExcel,
       AddCustomer,
@@ -190,6 +208,7 @@
               }
               alert("حذف با موفقیت انجام شد")
               this.loading = false
+                location.reload()
             }
             catch (e) {
                 console.log(e)

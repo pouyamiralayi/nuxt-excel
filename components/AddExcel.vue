@@ -51,7 +51,7 @@
 <script>
   import Strapi from 'strapi-sdk-javascript/build/main'
 import axios from "axios";
-  const apiUrl = process.env.API_URL || ''
+  const apiUrl = process.env.API_URL || 'http://localhost:1337'
   const strapi = new Strapi(apiUrl)
 
   export default {
@@ -87,7 +87,7 @@ import axios from "axios";
             const files = await strapi.upload(form);
               const file_id = files[0].id
             // console.log(files)
-            const response = await axios.post(apiUrl`/updatehook?id=${excel_id}&file_name=default&file_id=${file_id}`)
+            const response = await axios.post(apiUrl+`/updatehook?id=${excel_id}&file_name=default&file_id=${file_id}`)
             this.loading = false
             alert('فایل با موفقیت پردازش شد.')
           }

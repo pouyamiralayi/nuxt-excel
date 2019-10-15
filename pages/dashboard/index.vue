@@ -5,6 +5,9 @@
     </section>
     <section v-else class="container-fluid" dir="rtl" >
       <div>
+        <p>
+          {{customers.length || 0}}
+        </p>
         <!--<b-row>-->
           <!--<b-col cols="12" class="text-center">-->
             <!--<app-logo/>-->
@@ -108,7 +111,7 @@
 </template>
 
 <script>
-  import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
+  // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
   import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
   import AppLogo from '~/components/AppLogo.vue'
   import AddExcel from '~/components/AddExcel.vue'
@@ -148,7 +151,8 @@
       }
     },
     components: {
-        datePicker: VuePersianDatetimePicker,
+        datePicker: () => import('vue-persian-datetime-picker'),
+        // datePicker: VuePersianDatetimePicker,
         Header,
       AppLogo,
       AddExcel,
@@ -183,6 +187,7 @@
             }
             alert("حذف با موفقیت انجام شد")
               this.loading = false
+              location.reload()
           }
           catch (e) {
               console.log(e)

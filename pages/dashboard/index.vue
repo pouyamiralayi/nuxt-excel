@@ -5,8 +5,11 @@
     </section>
     <section v-else class="container-fluid" dir="rtl" >
       <div>
-        <p>
-          {{customers.length || 0}}
+<!--        <p class="text-right w-100">-->
+<!--          {{this.$apollo.queries.customers.loading ? "Loading" : "Done"}}-->
+<!--        </p>-->
+        <p class="text-right w-100">
+          <span>تعداد آیتم ها:</span>&nbsp;&nbsp;{{customers && customers.length || 0}}
         </p>
         <!--<b-row>-->
           <!--<b-col cols="12" class="text-center">-->
@@ -74,6 +77,18 @@
             </div>
           </div>
         </b-row>
+        <b-row align-h="center" class="container-fluid">
+<!--          <b-button-->
+<!--            @click="movePage(1)"-->
+<!--          >First</b-button>&nbsp;&nbsp;&nbsp;-->
+          <b-button
+            v-for="page in pages"
+            :key="page.name"
+            @click="movePage(page.name)"
+            :disabled="page.isDisabled"
+          >{{page.name}}</b-button>
+<!--          &nbsp;&nbsp;&nbsp;<b-button @click="movePage(totalPages)">Last</b-button>&nbsp;&nbsp;&nbsp;-->
+        </b-row>
         <b-row align-h="start" class="container-fluid">
           <b-card
             v-if="filteredList && filteredList.length"
@@ -112,7 +127,8 @@
 
 <script>
   // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
-  import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
+  // import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
+  import CustomersQueryParam from '@/apollo/queries/CustomersQueryParam.gql'
   import AppLogo from '~/components/AppLogo.vue'
   import AddExcel from '~/components/AddExcel.vue'
   import EditExcel from '~/components/EditExcel.vue'
@@ -129,27 +145,75 @@
   export default {
       apollo: {
           customers: {
-              prefetch: true,
-              query: CustomersQuery
+              manual:true,
+              // prefetch: true,
+              query: CustomersQueryParam,
+              variables(){
+                  return {
+                    start: this.start,
+                    limit: this.limit,
+                    sort:'id:asc'
+                  }
+              },
+              watchLoading(isLoading) {
+                  // console.log('isLoading: ',isLoading)
+                  // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
+                  // following is not working:
+                  if (isLoading) {
+                      this.loading = true
+                  }
+                  else {
+                      this.loading = false
+                  }
+              },
+              result ({ data, loading, networkStatus }) {
+                  if(!loading){
+                      this.customers = data.customers
+                  }
+              },
           },
       },
-      created(){
+      async created(){
         if(!this.isLoggedIn){
             this.$router.push('/')
+            return
         }
+          const resp = await axios.get(apiUrl+'/customers/count')
+          if(resp.data){
+            // console.log(resp.data)
+            this.totalPages = Math.ceil(resp.data / 100)
+            if(!this.totalPages){
+                alert("داده ای یافت نشد.")
+                return
+            }
+            console.log('total pages: ',this.totalPages)
+          }
+          else{
+                alert("داده ای یافت نشد.")
+                // this.$router.push('/')
+                return
+            }
+      },
+      async mounted(){
+          await this.$apollo.queries.customers.start()
       },
     data() {
-      return {
-          loading:false,
-          customer_no:'',
-          dateFrom:'',
-          dateTo:'',
-          customers:[],
-        query: '',
-        queryCustomer: '',
-        eid: '',
-      }
-    },
+          return {
+              maxVisibleButtons:3,
+              currentPage:1,
+              totalPages:null,
+              start:0,
+              limit:100,
+              loading:false,
+              customer_no:'',
+              dateFrom:'',
+              dateTo:'',
+              customers:[],
+              query: '',
+              queryCustomer: '',
+              eid: '',
+          }
+      },
     components: {
         datePicker: () => import('vue-persian-datetime-picker'),
         // datePicker: VuePersianDatetimePicker,
@@ -160,6 +224,11 @@
       EditExcel,
     },
     methods: {
+      async movePage(i){
+          this.currentPage = i
+          this.start =  (i-1) * 100
+          await this.$apollo.queries.customers.start()
+      },
       async removeRange(){
           if(!this.customer_no){
               alert("شمارۀ مشتری را مشخص نمایید")
@@ -213,6 +282,32 @@
 
     },
     computed: {
+        startPage() {
+            // When on the first page
+            if (this.currentPage === 1) {
+                return 1;
+            }
+            // When on the last page
+            if (this.currentPage === this.totalPages) {
+                return this.totalPages - this.maxVisibleButtons;
+            }
+            // When in between
+            return this.currentPage - 1;
+        },
+        pages() {
+            const range = [];
+
+            for (let i = this.startPage;
+                 i <= Math.min(this.startPage + this.maxVisibleButtons - 1, this.totalPages);
+                 i+= 1 ) {
+                range.push({
+                    name: i,
+                    isDisabled: i === this.currentPage
+                });
+            }
+
+            return range;
+        },
         isLoggedIn(){
           return this.$store.getters['auth/username']
         },

@@ -90,6 +90,7 @@ import axios from "axios";
             const response = await axios.post(apiUrl+`/updatehook?id=${excel_id}&file_name=default&file_id=${file_id}`)
             this.loading = false
             alert('فایل با موفقیت پردازش شد.')
+              location.reload()
           }
           catch (e) {
               this.loading = false

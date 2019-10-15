@@ -327,7 +327,7 @@
                     this.$router.push('/')
                     return
                 }
-                const resp = await axios.get(apiUrl + `/customers/count?description_contains=${this.customer_description_query}`)
+                const resp = await axios.get(apiUrl + '/customers/count?description_contains='+this.customer_description_query)
                 if (resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
@@ -340,7 +340,7 @@
                     alert("داده ای یافت نشد.")
                     return
                 }
-                const res = await axios.get(apiUrl+`/customers?description_contains=${this.customer_description_query}`)
+                const res = await axios.get(apiUrl+'/customers?description_contains='+this.customer_description_query)
                 if(res.data){
                     // console.log(res.data)
                     this.customers = res.data

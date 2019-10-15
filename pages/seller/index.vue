@@ -5,6 +5,7 @@
     </section>
     <section v-else class="container-fluid" dir="rtl">
       <div>
+        <br>
         <p class="text-right w-100">
           <span>تعداد کل آیتم ها:</span>&nbsp;&nbsp;&nbsp;{{sellers.length || 0}}
         </p>
@@ -73,6 +74,20 @@
             </div>
           </div>
         </b-row>
+        <b-row align-h="center" class="container-fluid">
+          <b-button
+            :disabled="currentPage === 1"
+            @click="movePage(1)"
+          >ابتدا</b-button>&nbsp;&nbsp;&nbsp;
+          <b-button
+            v-for="page in pages"
+            :key="page.name"
+            @click="movePage(page.name)"
+            :disabled="page.isDisabled"
+          >{{page.name}}</b-button>
+          &nbsp;&nbsp;&nbsp;<b-button
+          @click="movePage(totalPages)" :disabled="currentPage === totalPages">انتها</b-button>&nbsp;&nbsp;&nbsp;
+        </b-row>
         <b-row align-h="start" class="container-fluid">
           <b-card
             v-if="filteredList && filteredList.length"
@@ -121,7 +136,7 @@
 </template>
 
 <script>
-  import moment from 'moment-jalaali'
+    import moment from 'moment-jalaali'
   // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
   import axios from "axios";
 
@@ -132,7 +147,8 @@
   import Strapi from 'strapi-sdk-javascript/build/main'
   import {mapGetters} from 'vuex'
 
-  import SellersQuery from '@/apollo/queries/SellersQuery.gql'
+  import SellersQueryParam from '@/apollo/queries/SellersQueryParam.gql'
+  // import SellersQuery from '@/apollo/queries/SellersQuery.gql'
 
 
   // const apiUrl = process.env.API_URL || ''
@@ -142,8 +158,15 @@
   export default {
       apollo: {
           sellers: {
-              prefetch: true,
-              query: SellersQuery,
+              manual:true,
+              query: SellersQueryParam,
+              variables(){
+                  return {
+                      start: this.start,
+                      limit: this.limit,
+                      sort:'id:asc'
+                  }
+              },
               watchLoading(isLoading) {
                   // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
                   // following is not working:
@@ -153,16 +176,44 @@
                   else {
                       this.loading = false
                   }
-              }
+              },
+              result ({ data, loading, networkStatus }) {
+                  if(!loading){
+                      this.sellers = data.sellers
+                  }
+              },
           },
       },
-      created(){
+      async created(){
           if(!this.isLoggedIn){
               this.$router.push('/')
           }
+          const resp = await axios.get(apiUrl+'/sellers/count')
+          if(resp.data){
+              // console.log(resp.data)
+              this.totalPages = Math.ceil(resp.data / 100)
+              if(!this.totalPages){
+                  alert("داده ای یافت نشد.")
+                  return
+              }
+              console.log('total pages: ',this.totalPages)
+          }
+          else{
+              alert("داده ای یافت نشد.")
+              // this.$router.push('/')
+              return
+          }
+      },
+      async mounted(){
+          await this.$apollo.queries.sellers.start()
       },
     data() {
       return {
+          maxVisibleButtons:3,
+          currentPage:1,
+          totalPages:null,
+          start:0,
+          limit:100,
           loading: false,
           seller_no:'',
           dateFrom:'',
@@ -181,6 +232,14 @@
       EditExcel,
     },
     methods: {
+        async movePage(i){
+            if(i <= 0){
+                return
+            }
+            this.currentPage = i
+            this.start =  (i-1) * this.limit
+            await this.$apollo.queries.sellers.start()
+        },
         async removeRange(){
             if(!this.seller_no){
                 alert("شمارۀ فروشنده را مشخص نمایید")
@@ -234,6 +293,39 @@
 
     },
     computed: {
+        startPage() {
+            // When on the first page
+            console.log('currentPage: ',this.currentPage)
+            if (this.currentPage === 1) {
+                return 1;
+            }
+            // When on the last page
+            if (this.currentPage === this.totalPages) {
+                return this.totalPages - this.maxVisibleButtons;
+            }
+            // When in between
+            return this.currentPage - 1;
+        },
+        endPage() {
+            return Math.min(this.startPage + this.maxVisibleButtons - 1, this.totalPages);
+        },
+        pages() {
+            const range = [];
+
+            for (let i = this.startPage;
+                 i <= this.endPage;
+                 i+= 1 ) {
+                if(i<=0){
+                    continue
+                }
+                range.push({
+                    name: i,
+                    isDisabled: i === this.currentPage
+                });
+            }
+
+            return range;
+        },
         isLoggedIn(){
             return this.$store.getters['auth/username']
         },

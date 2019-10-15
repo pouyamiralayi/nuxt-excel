@@ -1,6 +1,10 @@
 <template>
   <client-only>
     <div v-if="username">
+      <b-modal id="modal-admin" dir="ltr" title="تغییر رمز عبور" busy>
+        <change-pass></change-pass>
+        <div slot="modal-footer"></div>
+      </b-modal>
       <b-navbar toggleable="lg" type="dark" variant="light" :sticky="true">
         <b-navbar-toggle style="background-color: #e3f2fd;" target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
@@ -11,6 +15,10 @@
               <!--<span class="subtitle">{{ username }}</span><br>-->
               <!--          </a>-->
             </b-nav-item>
+            &nbsp;&nbsp;&nbsp;
+<!--            <b-nav-item href="#">-->
+<!--                <p class="subtitle" @click="showAdmin" dir="rtl"><span>⛱</span>&nbsp;<span>مدیریت ورود</span></p>-->
+<!--            </b-nav-item>-->
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
             <b-nav-item href="#">
@@ -63,7 +71,7 @@
 
 <script>
     import {mapMutations} from 'vuex'
-
+    import ChangePass from '@/components/ChangePass'
     export default {
         computed: {
             username() {
@@ -71,10 +79,16 @@
             }
         },
         methods: {
+            showAdmin(){
+                this.$bvModal.show('modal-admin')
+            },
             logout() {
                 this.$store.commit('auth/logout')
                 this.$router.push('/')
             }
+        },
+        components:{
+            'change-pass': ChangePass
         }
     }
 </script>

@@ -24,5 +24,8 @@ export const getters = {
   },
   token: state => {
     return state.user && state.user.jwt
+  },
+  id: state => {
+    return state.user && state.user.id
   }
 }

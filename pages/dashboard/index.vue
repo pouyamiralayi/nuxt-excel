@@ -46,6 +46,7 @@
             </div>
           </div>
         </client-only>
+<!--        <b-button v-b-modal.modal-admin>change pass</b-button>-->
         <b-modal id="modal-new" dir="ltr" title="تعریف اکسل" busy>
           <add-excel></add-excel>
           <div slot="modal-footer"></div>

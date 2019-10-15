@@ -62,18 +62,38 @@
           <div slot="modal-footer"></div>
         </b-modal>
         <b-row aling-h="start">
-          <div class="col-md-6">
+          <div class="col-md-3">
             <div class="form-group mt-3">
-              <input v-model="query" type="text" class="form-control pt-4 pb-4" placeholder="جستجو...">
+              <input v-model="seller_no_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی کد مشتری...">
+            </div>
+            <div class="form-group">
+              <b-button @click="searchSellerNo">جستجو</b-button>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="form-group mt-3 float-right">
-              <b-button class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
-<!--              <b-button class="mt-1" v-b-modal.modal-new-customer dir="rtl">تعریف مشتری</b-button>-->
+          <div class="col-md-3">
+            <div class="form-group mt-3">
+              <input v-model="seller_name_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی نام مشتری...">
+            </div>
+            <div class="form-group">
+              <b-button @click="searchSellerName">جستجو</b-button>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group mt-3">
+              <input v-model="seller_product_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی محصول...">
+            </div>
+            <div class="form-group">
+              <b-button @click="searchProduct">جستجو</b-button>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group mt-3 text-center">
+              <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
             </div>
           </div>
         </b-row>
+        <br>
+        <br>
         <b-row align-h="center" class="container-fluid">
           <b-button
             :disabled="currentPage === 1"
@@ -209,6 +229,9 @@
       },
     data() {
       return {
+          seller_no_query:'',
+          seller_name_query:'',
+          seller_product_query:'',
           maxVisibleButtons:3,
           currentPage:1,
           totalPages:null,
@@ -232,6 +255,99 @@
       EditExcel,
     },
     methods: {
+        async searchSellerNo(){
+            if(!this.seller_no_query){
+                alert("کد فروشنده را وارد نمایید!")
+                return
+            }
+            if (!this.isLoggedIn) {
+                this.$router.push('/')
+                return
+            }
+            const resp = await axios.get(apiUrl + `/sellers/count?seller_no_contains=${this.seller_no_query}`)
+            if (resp.data) {
+                // console.log(resp.data)
+                this.totalPages = Math.ceil(resp.data / 100)
+                if (!this.totalPages) {
+                    alert("داده ای یافت نشد.")
+                    return
+                }
+                console.log('total pages: ', this.totalPages)
+            } else {
+                alert("داده ای یافت نشد.")
+                return
+            }
+            const res = await axios.get(apiUrl+`/sellers?seller_no_contains=${this.seller_no_query}`)
+            if(res.data){
+                // console.log(res.data)
+                this.sellers = res.data
+            }
+            else{
+                alert("داده ای یافت نشد.")
+            }
+        },
+        async searchSellerName(){
+            if(!this.seller_name_query){
+                alert("نام فروشنده را وارد نمایید!")
+                return
+            }
+            if (!this.isLoggedIn) {
+                this.$router.push('/')
+                return
+            }
+            const resp = await axios.get(apiUrl + `/sellers/count?seller_name_contains=${this.seller_name_query}`)
+            if (resp.data) {
+                // console.log(resp.data)
+                this.totalPages = Math.ceil(resp.data / 100)
+                if (!this.totalPages) {
+                    alert("داده ای یافت نشد.")
+                    return
+                }
+                console.log('total pages: ', this.totalPages)
+            } else {
+                alert("داده ای یافت نشد.")
+                return
+            }
+            const res = await axios.get(apiUrl+`/sellers?seller_name_contains=${this.seller_name_query}`)
+            if(res.data){
+                // console.log(res.data)
+                this.sellers = res.data
+            }
+            else{
+                alert("داده ای یافت نشد.")
+            }
+        },
+        async searchProduct(){
+            if(!this.seller_product_query){
+                alert("نام محصول را وارد نمایید!")
+                return
+            }
+            if (!this.isLoggedIn) {
+                this.$router.push('/')
+                return
+            }
+            const resp = await axios.get(apiUrl + `/sellers/count?product_contains=${this.seller_product_query}`)
+            if (resp.data) {
+                // console.log(resp.data)
+                this.totalPages = Math.ceil(resp.data / 100)
+                if (!this.totalPages) {
+                    alert("داده ای یافت نشد.")
+                    return
+                }
+                console.log('total pages: ', this.totalPages)
+            } else {
+                alert("داده ای یافت نشد.")
+                return
+            }
+            const res = await axios.get(apiUrl+`/sellers?product_contains=${this.seller_product_query}`)
+            if(res.data){
+                // console.log(res.data)
+                this.sellers = res.data
+            }
+            else{
+                alert("داده ای یافت نشد.")
+            }
+        },
         async movePage(i){
             if(i <= 0){
                 return

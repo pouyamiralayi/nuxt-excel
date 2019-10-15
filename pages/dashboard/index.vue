@@ -68,18 +68,38 @@
         </b-modal>
 
         <b-row aling-h="start">
-          <div class="col-md-6">
+          <div class="col-md-3">
             <div class="form-group mt-3">
-              <input v-model="query" type="text" class="form-control pt-4 pb-4" placeholder="جستجو...">
+              <input v-model="customer_no_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی کد مشتری...">
+            </div>
+            <div class="form-group">
+              <b-button @click="searchCustomerNo">جستجو</b-button>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="form-group mt-3 float-right">
-              <b-button class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
-              <!--              <b-button class="mt-1" v-b-modal.modal-new-customer dir="rtl">تعریف مشتری</b-button>-->
+          <div class="col-md-3">
+            <div class="form-group mt-3">
+              <input v-model="customer_name_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی نام مشتری...">
+            </div>
+            <div class="form-group">
+              <b-button @click="searchCustomerName">جستجو</b-button>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group mt-3">
+              <input v-model="customer_description_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی شرح...">
+            </div>
+            <div class="form-group">
+              <b-button @click="searchCustomerDesc">جستجو</b-button>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group mt-3 text-center">
+              <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
             </div>
           </div>
         </b-row>
+        <br>
+        <br>
         <b-row align-h="center" class="container-fluid">
           <b-button
             :disabled="currentPage === 1"
@@ -208,6 +228,9 @@
         },
         data() {
             return {
+                customer_no_query:'',
+                customer_name_query:'',
+                customer_description_query:'',
                 maxVisibleButtons: 3,
                 currentPage: 1,
                 totalPages: null,
@@ -233,6 +256,99 @@
             EditExcel,
         },
         methods: {
+            async searchCustomerNo(){
+                if(!this.customer_no_query){
+                    alert("کد مشتری را وارد نمایید!")
+                    return
+                }
+                if (!this.isLoggedIn) {
+                    this.$router.push('/')
+                    return
+                }
+                const resp = await axios.get(apiUrl + `/customers/count?customer_no_contains=${this.customer_no_query}`)
+                if (resp.data) {
+                    // console.log(resp.data)
+                    this.totalPages = Math.ceil(resp.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        return
+                    }
+                    console.log('total pages: ', this.totalPages)
+                } else {
+                    alert("داده ای یافت نشد.")
+                    return
+                }
+                const res = await axios.get(apiUrl+`/customers?customer_no_contains=${this.customer_no_query}`)
+                if(res.data){
+                    // console.log(res.data)
+                    this.customers = res.data
+                }
+                else{
+                    alert("داده ای یافت نشد.")
+                }
+            },
+            async searchCustomerName(){
+                if(!this.customer_name_query){
+                    alert("نام مشتری را وارد نمایید!")
+                    return
+                }
+                if (!this.isLoggedIn) {
+                    this.$router.push('/')
+                    return
+                }
+                const resp = await axios.get(apiUrl + `/customers/count?customer_name_contains=${this.customer_name_query}`)
+                if (resp.data) {
+                    // console.log(resp.data)
+                    this.totalPages = Math.ceil(resp.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        return
+                    }
+                    console.log('total pages: ', this.totalPages)
+                } else {
+                    alert("داده ای یافت نشد.")
+                    return
+                }
+                const res = await axios.get(apiUrl+`/customers?customer_name_contains=${this.customer_name_query}`)
+                if(res.data){
+                    // console.log(res.data)
+                    this.customers = res.data
+                }
+                else{
+                    alert("داده ای یافت نشد.")
+                }
+            },
+            async searchCustomerDesc(){
+                if(!this.customer_description_query){
+                    alert("شرح را وارد نمایید!")
+                    return
+                }
+                if (!this.isLoggedIn) {
+                    this.$router.push('/')
+                    return
+                }
+                const resp = await axios.get(apiUrl + `/customers/count?description_contains=${this.customer_description_query}`)
+                if (resp.data) {
+                    // console.log(resp.data)
+                    this.totalPages = Math.ceil(resp.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        return
+                    }
+                    console.log('total pages: ', this.totalPages)
+                } else {
+                    alert("داده ای یافت نشد.")
+                    return
+                }
+                const res = await axios.get(apiUrl+`/customers?description_contains=${this.customer_description_query}`)
+                if(res.data){
+                    // console.log(res.data)
+                    this.customers = res.data
+                }
+                else{
+                    alert("داده ای یافت نشد.")
+                }
+            },
             async movePage(i) {
                 if(i<=0){
                     return

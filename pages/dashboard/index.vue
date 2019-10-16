@@ -173,7 +173,7 @@
     import axios from "axios";
     import moment from 'moment-jalaali'
     // const apiUrl = process.env.API_URL || ''
-    const apiUrl = process.env.API_URL || 'http://localhost:1337'
+    const apiUrl = process.env.API_URL || 'http://10.30.205.75:1337'
     const strapi = new Strapi(apiUrl)
 
     export default {
@@ -227,7 +227,7 @@
             }
         },
         async mounted() {
-            this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
+            // this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
             // console.log(this.$apolloHelpers.getToken())
             await this.$apollo.queries.customers.start()
         },
@@ -348,6 +348,7 @@
                     alert("داده ای یافت نشد.")
                     return
                 }
+                this.loading = true
                 const res = await axios.get(apiUrl+'/customers?description_contains='+this.customer_description_query)
                 if(res.data){
                     // console.log(res.data)
@@ -356,6 +357,7 @@
                 else{
                     alert("داده ای یافت نشد.")
                 }
+                this.loading = false
             },
             async movePage(i) {
                 if(i<=0){

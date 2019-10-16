@@ -65,7 +65,7 @@
   import AppLogo from '~/components/AppLogo.vue'
 
   // const apiUrl = process.env.API_URL || ''
-  const apiUrl = process.env.API_URL || 'http://localhost:1337'
+  const apiUrl = process.env.API_URL || 'http://10.30.205.75:1337'
   // console.log('apiUrl',apiUrl)
   const strapi = new Strapi(apiUrl)
   import { mapMutations } from 'vuex'
@@ -105,7 +105,7 @@
         try {
           this.loading = true
           const response = await strapi.login(this.email, this.password)
-            // console.log(response)
+            console.log(response)
           // this.loading = false
           // this.$store.commit('auth/setUser', response.user)
           this.setUser({jwt:response.jwt, ...response.user})

@@ -1,0 +1,13 @@
+query($start: Int, $limit: Int, $sort: String) {
+  customers(start:$start, limit:$limit, sort:$sort){
+    id
+    record_no
+    fin_year
+    date
+    customer_no
+    customer_name
+    description
+    owed
+    owned
+  }
+}

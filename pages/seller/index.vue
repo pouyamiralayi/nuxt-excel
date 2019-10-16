@@ -175,7 +175,7 @@
 
 
   // const apiUrl = process.env.API_URL || ''
-  const apiUrl = process.env.API_URL || 'http://10.30.205.75:1337'
+  const apiUrl = process.env.API_URL || 'http://10.30.205.75:1339'
   const strapi = new Strapi(apiUrl)
 
   export default {
@@ -283,6 +283,7 @@
                 alert("داده ای یافت نشد.")
                 return
             }
+            this.loading = true
             const res = await axios.get(apiUrl+`/sellers?seller_no_contains=${this.seller_no_query}`)
             if(res.data){
                 // console.log(res.data)
@@ -291,6 +292,7 @@
             else{
                 alert("داده ای یافت نشد.")
             }
+            this.loading = false
         },
         async searchSellerName(){
             if(!this.seller_name_query){
@@ -314,6 +316,7 @@
                 alert("داده ای یافت نشد.")
                 return
             }
+            this.loading = true
             const res = await axios.get(apiUrl+`/sellers?seller_name_contains=${this.seller_name_query}`)
             if(res.data){
                 // console.log(res.data)
@@ -322,6 +325,7 @@
             else{
                 alert("داده ای یافت نشد.")
             }
+            this.loading = false
         },
         async searchProduct(){
             if(!this.seller_product_query){
@@ -346,6 +350,7 @@
                 return
             }
             // const res = await axios(apiUrl + '/sellers/',
+            this.loading = true
             const res = await axios(apiUrl + '/sellers?product_contains='+this.seller_product_query)
                 // {
               //     method:'get',
@@ -364,6 +369,7 @@
             else{
                 alert("داده ای یافت نشد.")
             }
+            this.loading = false
         },
         async movePage(i){
             if(i <= 0){

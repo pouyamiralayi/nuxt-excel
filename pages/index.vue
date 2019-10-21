@@ -65,6 +65,7 @@
   import AppLogo from '~/components/AppLogo.vue'
 
   // const apiUrl = process.env.API_URL || ''
+  // const apiUrl = process.env.API_URL || 'http://localhost:1337'
   const apiUrl = process.env.API_URL || 'http://10.30.205.75:1339'
   // console.log('apiUrl',apiUrl)
   const strapi = new Strapi(apiUrl)

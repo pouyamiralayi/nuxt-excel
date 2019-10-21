@@ -51,6 +51,7 @@
 <script>
   import Strapi from 'strapi-sdk-javascript/build/main'
 import axios from "axios";
+  // const apiUrl = process.env.API_URL || 'http://localhost:1337'
   const apiUrl = process.env.API_URL || 'http://10.30.205.75:1339'
   const strapi = new Strapi(apiUrl)
 

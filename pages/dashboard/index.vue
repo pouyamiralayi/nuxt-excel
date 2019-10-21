@@ -24,6 +24,30 @@
         <!--</h2>-->
         <!--</b-col>-->
         <!--</b-row>-->
+        <!--search range global-->
+        <!--remove & search range global-->
+        <client-only>
+          <div style="display: flex; justify-content: flex-start">
+            <div class="form-group mt-3">
+<!--              <input v-model="customer_no" type="text" class="form-control pt-2 pb-2 mt-2"-->
+<!--                     placeholder="کد مشتری را وارد نمایید...">-->
+            </div>
+            <div class="text-right">
+              <span>از تاریخ:</span><br>
+              <date-picker v-model="dateFromG"></date-picker>
+            </div>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="text-right">
+              <span>تا تاریخ:</span><br>
+              <date-picker v-model="dateToG" class=""></date-picker>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="form-group mt-4">
+              <b-button type="submit" variant="success" @click="searchRangeGlobal">جستجو</b-button>&nbsp;&nbsp;&nbsp;
+              <b-button type="submit" variant="danger" @click="removeRangeGlobal">حذف</b-button>
+            </div>
+          </div>
+        </client-only>
         <client-only>
           <div style="display: flex; justify-content: flex-start">
             <div class="form-group mt-3">
@@ -42,6 +66,7 @@
             </div>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <div class="form-group mt-4">
+              <b-button type="submit" variant="success" @click="searchRange">جستجو</b-button>&nbsp;&nbsp;&nbsp;
               <b-button type="submit" variant="danger" @click="removeRange">حذف</b-button>
             </div>
           </div>
@@ -173,6 +198,7 @@
     import axios from "axios";
     import moment from 'moment-jalaali'
     // const apiUrl = process.env.API_URL || ''
+    // const apiUrl = process.env.API_URL || 'http://localhost:1337'
     const apiUrl = process.env.API_URL || 'http://10.30.205.75:1339'
     const strapi = new Strapi(apiUrl)
 
@@ -186,7 +212,8 @@
                     return {
                         start: this.start,
                         limit: this.limit,
-                        sort: 'id:asc'
+                        sort: 'id:asc',
+                        where: this.where
                     }
                 },
                 watchLoading(isLoading) {
@@ -203,6 +230,9 @@
                     if (!loading) {
                         this.customers = data.customers
                     }
+                },
+                error (error) {
+                    console.error('We\'ve got an error!', error)
                 },
             },
         },
@@ -227,7 +257,7 @@
             }
         },
         async mounted() {
-            // this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
+            this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
             // console.log(this.$apolloHelpers.getToken())
             await this.$apollo.queries.customers.start()
         },
@@ -241,10 +271,15 @@
                 totalPages: null,
                 start: 0,
                 limit: 100,
+                where:{},
                 loading: false,
                 customer_no: '',
+                dateFromGS: '',
+                dateFromG: '',
                 dateFrom: '',
                 dateTo: '',
+                dateToG: '',
+                dateToGS: '',
                 customers: [],
                 query: '',
                 queryCustomer: '',
@@ -262,6 +297,7 @@
         },
         methods: {
             reload(){
+              this.where = {}
               location.reload()
             },
             async searchCustomerNo(){
@@ -273,29 +309,34 @@
                     this.$router.push('/')
                     return
                 }
-                const resp = await axios.get(apiUrl + `/customers/count?customer_no_contains=${this.customer_no_query}`)
+                this.loading = true
+                const resp = await axios.get(apiUrl + '/customers/count?customer_no_contains='+this.customer_no_query)
                 if (resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
                     if (!this.totalPages) {
                         alert("داده ای یافت نشد.")
+                        this.loading = false
                         return
                     }
                     console.log('total pages: ', this.totalPages)
                 } else {
                     alert("داده ای یافت نشد.")
+                    this.loading = false
                     return
                 }
-                this.loading = true
-                const res = await axios.get(apiUrl+`/customers?customer_no_contains=${this.customer_no_query}`)
-                if(res.data){
-                    // console.log(res.data)
-                    this.customers = res.data
-                }
-                else{
-                    alert("داده ای یافت نشد.")
-                }
-                this.loading = false
+                this.where = {}
+                this.where['customer_no'] = this.customer_no_query
+                await this.$apollo.queries.customers.start()
+                // const res = await axios.get(apiUrl+`/customers?customer_no_contains=${this.customer_no_query}`)
+                // if(res.data){
+                //     // console.log(res.data)
+                //     this.customers = res.data
+                // }
+                // else{
+                //     alert("داده ای یافت نشد.")
+                // }
+                // this.loading = false
             },
             async searchCustomerName(){
                 if(!this.customer_name_query){
@@ -306,29 +347,34 @@
                     this.$router.push('/')
                     return
                 }
-                const resp = await axios.get(apiUrl + `/customers/count?customer_name_contains=${this.customer_name_query}`)
+                this.loading = true
+                const resp = await axios.get(apiUrl + '/customers/count?customer_name_contains='+this.customer_name_query)
                 if (resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
                     if (!this.totalPages) {
                         alert("داده ای یافت نشد.")
+                        this.loading = false
                         return
                     }
                     console.log('total pages: ', this.totalPages)
                 } else {
                     alert("داده ای یافت نشد.")
+                    this.loading = false
                     return
                 }
-                this.loading = true
-                const res = await axios.get(apiUrl+`/customers?customer_name_contains=${this.customer_name_query}`)
-                if(res.data){
-                    // console.log(res.data)
-                    this.customers = res.data
-                }
-                else{
-                    alert("داده ای یافت نشد.")
-                }
-                this.loading  = false
+                this.where = {}
+                this.where['customer_name_contains'] = this.customer_name_query
+                await this.$apollo.queries.customers.start()
+                // const res = await axios.get(apiUrl+`/customers?customer_name_contains=${this.customer_name_query}`)
+                // if(res.data){
+                //     // console.log(res.data)
+                //     this.customers = res.data
+                // }
+                // else{
+                //     alert("داده ای یافت نشد.")
+                // }
+                // this.loading  = false
             },
             async searchCustomerDesc(){
                 if(!this.customer_description_query){
@@ -339,29 +385,34 @@
                     this.$router.push('/')
                     return
                 }
+                this.loading = true
                 const resp = await axios.get(apiUrl + '/customers/count?description_contains='+this.customer_description_query)
                 if (resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
                     if (!this.totalPages) {
                         alert("داده ای یافت نشد.")
+                        this.loading = false
                         return
                     }
                     console.log('total pages: ', this.totalPages)
                 } else {
                     alert("داده ای یافت نشد.")
+                    this.loading = false
                     return
                 }
-                this.loading = true
-                const res = await axios.get(apiUrl+'/customers?description_contains='+this.customer_description_query)
-                if(res.data){
-                    // console.log(res.data)
-                    this.customers = res.data
-                }
-                else{
-                    alert("داده ای یافت نشد.")
-                }
-                this.loading = false
+                this.where = {}
+                this.where['description_contains'] = this.customer_description_query
+                await this.$apollo.queries.customers.start()
+                // const res = await axios.get(apiUrl+'/customers?description_contains='+this.customer_description_query)
+                // if(res.data){
+                //     // console.log(res.data)
+                //     this.customers = res.data
+                // }
+                // else{
+                //     alert("داده ای یافت نشد.")
+                // }
+                // this.loading = false
             },
             async movePage(i) {
                 if(i<=0){
@@ -371,6 +422,118 @@
                 this.start = (i - 1) * this.limit
                 await this.$apollo.queries.customers.start()
             },
+            async searchRange(){
+                if (!this.customer_no) {
+                    alert("شمارۀ مشتری را مشخص نمایید")
+                    return
+                }
+                try {
+                    this.loading = true
+                    const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                    const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                    const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
+                    if (response.data == null || response.data === undefined || !response.data) {
+                        alert("داده ای یافت نشد")
+                        this.loading = false
+                        return
+                    }
+                    this.totalPages = Math.ceil(response.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        this.loading = false
+                        return
+                    }
+                    console.log('total pages: ', this.totalPages)
+                    this.where = {}
+                    this.where['date_gte'] = fdateFrom
+                    this.where['date_lt'] = fdateTo
+                    this.where['customer_no'] = this.customer_no
+                    await this.$apollo.queries.customers.start()
+                    // const res = await axios.get(apiUrl+`/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
+                    // if(res.data){
+                    //     // console.log(res.data)
+                    //     this.customers = res.data
+                    // }
+                    // else{
+                    //     alert("داده ای یافت نشد.")
+                    // }
+                    // this.loading = false
+                } catch (e) {
+                    console.log(e)
+                    this.loading = false
+                }
+            },
+            async searchRangeGlobal(){
+                try {
+                    this.loading = true
+                    const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                    const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                    const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                    if (response.data == null || response.data === undefined || !response.data) {
+                        alert("داده ای یافت نشد")
+                        this.loading = false
+                        return
+                    }
+                    this.totalPages = Math.ceil(response.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        this.loading = false
+                        return
+                    }
+                    console.log('total pages: ', this.totalPages)
+                    this.where = {}
+                    this.where['date_gte'] = fdateFrom
+                    this.where['date_lt'] = fdateTo
+                    console.log(this.where)
+                    await this.$apollo.queries.customers.start()
+                    // const res = await axios.get(apiUrl+`/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                    // if(res.data){
+                    //     // console.log(res.data)
+                    //     this.customers = res.data
+                    // }
+                    // else{
+                    //     alert("داده ای یافت نشد.")
+                    // }
+                    // this.loading = false
+                } catch (e) {
+                    console.log(e)
+                    this.loading = false
+                }
+            },
+            async removeRangeGlobal() {
+                // if (!this.customer_no) {
+                //     alert("شمارۀ مشتری را مشخص نمایید")
+                //     return
+                // }
+                try {
+                    this.loading = true
+                    const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                    const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                    const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                    if (response.data == null || response.data === undefined) {
+                        alert("داده ای یافت نشد")
+                        this.loading = false
+                        return
+                    }
+                    for (const res of response.data) {
+                        if (res.id) {
+                            try {
+                                const re = await strapi.deleteEntry('customers', res.id)
+                                console.log(res)
+                            } catch (e) {
+                                console.log(e)
+                            }
+                        }
+                    }
+                    alert("حذف با موفقیت انجام شد")
+                    this.loading = false
+                    location.reload()
+                } catch (e) {
+                    console.log(e)
+                    this.loading = false
+                }
+            },
+
             async removeRange() {
                 if (!this.customer_no) {
                     alert("شمارۀ مشتری را مشخص نمایید")
@@ -380,9 +543,10 @@
                     this.loading = true
                     const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                    const response = await axios.get(apiUrl + `/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
-                    if (response.data == null || response.data === undefined) {
+                    const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
+                    if (response.data == null || response.data === undefined || !response.data) {
                         alert("داده ای یافت نشد")
+                        this.loading = false
                         return
                     }
                     for (const res of response.data) {

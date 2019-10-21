@@ -263,6 +263,7 @@
                 },
                 async result({data, loading, networkStatus}) {
                     if (!loading) {
+                        this.loading = true
                         for (const res of data.customers) {
                             if (res.id) {
                                 try {
@@ -273,6 +274,9 @@
                                 }
                             }
                         }
+                        this.loading = false
+                        this.search = false
+                        this.reload()
                         // this.customers = data.customers
                     }
                 },
@@ -602,9 +606,9 @@
                     this.search = true
                     for(var i = 0; i< this.totalPages; i++){
                       this.movePageDelete(i)
-                      await this.$apollo.queries.customersDelete.start()
+                      await this.$apollo.queries.customersDelete.refetch()
                     }
-                    this.search = false
+                    // this.search = false
                     // const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
                     // if (response.data == null || response.data === undefined) {
                     //     alert("داده ای یافت نشد")
@@ -624,7 +628,7 @@
                     // alert("حذف با موفقیت انجام شد")
                     // this.loading = false
                     // location.reload()
-                    this.reload()
+                    // this.reload()
                 } catch (e) {
                     console.log(e)
                     this.loading = false
@@ -662,9 +666,9 @@
                     this.search = true
                     for(var i = 0; i< this.totalPages; i++){
                         this.movePageDelete(i)
-                        await this.$apollo.queries.customersDelete.start()
+                        await this.$apollo.queries.customersDelete.refetch()
                     }
-                    this.search = false
+                    // this.search = false
                     // for (const res of response.data) {
                     //     if (res.id) {
                     //         try {
@@ -678,7 +682,7 @@
                     // alert("حذف با موفقیت انجام شد")
                     // this.loading = false
                     // location.reload()
-                    this.reload()
+                    // this.reload()
                 } catch (e) {
                     console.log(e)
                     this.loading = false

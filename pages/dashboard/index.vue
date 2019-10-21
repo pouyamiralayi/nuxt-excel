@@ -209,6 +209,7 @@
                 manual: true,
                 prefetch: false,
                 query: CustomersQueryParam,
+                fetchPolicy: 'no-cache',
                 variables() {
                     return {
                         start: this.start,
@@ -240,6 +241,7 @@
                 manual: true,
                 prefetch: false,
                 query: CustomersQueryDelete,
+                fetchPolicy: 'no-cache',
                 variables() {
                     return {
                         start: this.start,

@@ -7,7 +7,6 @@ export const actions = {
       const parsed = cookieparser.parse(req.headers.cookie)
       user = (parsed.user && JSON.parse(parsed.user)) || null
     }
-
     commit('auth/setUser', user)
   }
 }

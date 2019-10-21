@@ -188,6 +188,7 @@
     // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
     // import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
     import CustomersQueryParam from '@/apollo/queries/CustomersQueryParam.gql'
+    import CustomersQueryDelete from '@/apollo/queries/CustomersQueryDelete.gql'
     import AppLogo from '~/components/AppLogo.vue'
     import AddExcel from '~/components/AddExcel.vue'
     import EditExcel from '~/components/EditExcel.vue'
@@ -206,7 +207,7 @@
         apollo: {
             customers: {
                 manual: true,
-                // prefetch: true,
+                prefetch: false,
                 query: CustomersQueryParam,
                 variables() {
                     return {
@@ -235,34 +236,63 @@
                     console.error('We\'ve got an error!', error)
                 },
             },
+            customersDelete: {
+                manual: true,
+                prefetch: false,
+                query: CustomersQueryDelete,
+                variables() {
+                    return {
+                        start: this.start,
+                        limit: this.limit,
+                        sort: 'id:asc',
+                        where: this.where
+                    }
+                },
+                skip(){
+                  return !this.search
+                },
+                watchLoading(isLoading) {
+                    // console.log('isLoading: ',isLoading)
+                    // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
+                    // following is not working:
+                    if (isLoading) {
+                        this.loading = true
+                    } else {
+                        this.loading = false
+                    }
+                },
+                async result({data, loading, networkStatus}) {
+                    if (!loading) {
+                        for (const res of data.customers) {
+                            if (res.id) {
+                                try {
+                                    const re = await strapi.deleteEntry('customers', res.id)
+                                    console.log(res)
+                                } catch (e) {
+                                    console.log(e)
+                                }
+                            }
+                        }
+                        // this.customers = data.customers
+                    }
+                },
+                error (error) {
+                    console.error('We\'ve got an error!', error)
+                },
+            },
+
         },
         async created() {
-            if (!this.isLoggedIn) {
-                this.$router.push('/')
-                return
-            }
-            const resp = await axios.get(apiUrl + '/customers/count')
-            if (resp.data) {
-                // console.log(resp.data)
-                this.totalPages = Math.ceil(resp.data / 100)
-                if (!this.totalPages) {
-                    alert("داده ای یافت نشد.")
-                    return
-                }
-                console.log('total pages: ', this.totalPages)
-            } else {
-                alert("داده ای یافت نشد.")
-                // this.$router.push('/')
-                return
-            }
+           this.reload()
         },
         async mounted() {
-            this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
+            // await this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
             // console.log(this.$apolloHelpers.getToken())
-            await this.$apollo.queries.customers.start()
+            // await this.$apollo.queries.customers.start()
         },
         data() {
             return {
+                search:false,
                 customer_no_query:'',
                 customer_name_query:'',
                 customer_description_query:'',
@@ -281,6 +311,7 @@
                 dateToG: '',
                 dateToGS: '',
                 customers: [],
+                customersDelete: [],
                 query: '',
                 queryCustomer: '',
                 eid: '',
@@ -296,9 +327,34 @@
             EditExcel,
         },
         methods: {
-            reload(){
-              this.where = {}
-              location.reload()
+            async reload(){
+                /*reset data*/
+                this.resetCursor()
+                /*check login*/
+                if (!this.isLoggedIn) {
+                    this.$router.push('/')
+                    return
+                }
+                /*set auth headers*/
+                axios.defaults.headers.common.Authorization = 'Bearer ' + this.$store.getters['auth/token'];
+                /*calculates totalPages*/
+                const resp = await axios.get(apiUrl + '/customers/count')
+                if (resp.data) {
+                    // console.log(resp.data)
+                    this.totalPages = Math.ceil(resp.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        return
+                    }
+                    console.log('total pages: ', this.totalPages)
+                } else {
+                    alert("داده ای یافت نشد.")
+                    // this.$router.push('/')
+                    return
+                }
+                /*fetch :)*/
+                await this.$apollo.queries.customers.refetch()
+              // location.reload()
             },
             async searchCustomerNo(){
                 if(!this.customer_no_query){
@@ -325,9 +381,10 @@
                     this.loading = false
                     return
                 }
-                this.where = {}
-                this.where['customer_no'] = this.customer_no_query
-                await this.$apollo.queries.customers.start()
+                this.resetCursor()
+                this.where['customer_no_contains'] = this.customer_no_query
+                console.log('where? ',this.where)
+                await this.$apollo.queries.customers.refetch()
                 // const res = await axios.get(apiUrl+`/customers?customer_no_contains=${this.customer_no_query}`)
                 // if(res.data){
                 //     // console.log(res.data)
@@ -363,9 +420,11 @@
                     this.loading = false
                     return
                 }
-                this.where = {}
+                // this.where = {}
+                this.resetCursor()
                 this.where['customer_name_contains'] = this.customer_name_query
-                await this.$apollo.queries.customers.start()
+                console.log('where? ',this.where)
+                await this.$apollo.queries.customers.refetch()
                 // const res = await axios.get(apiUrl+`/customers?customer_name_contains=${this.customer_name_query}`)
                 // if(res.data){
                 //     // console.log(res.data)
@@ -401,9 +460,11 @@
                     this.loading = false
                     return
                 }
-                this.where = {}
+                // this.where = {}
+                this.resetCursor()
                 this.where['description_contains'] = this.customer_description_query
-                await this.$apollo.queries.customers.start()
+                console.log('where? ',this.where)
+                await this.$apollo.queries.customers.refetch()
                 // const res = await axios.get(apiUrl+'/customers?description_contains='+this.customer_description_query)
                 // if(res.data){
                 //     // console.log(res.data)
@@ -420,7 +481,16 @@
                 }
                 this.currentPage = i
                 this.start = (i - 1) * this.limit
-                await this.$apollo.queries.customers.start()
+                console.log('where? ',this.where)
+                await this.$apollo.queries.customers.refetch()
+            },
+            movePageDelete(i) {
+                if(i<=0){
+                    return
+                }
+                // this.currentPage = i
+                this.start = (i - 1) * this.limit
+                // await this.$apollo.queries.customers.start()
             },
             async searchRange(){
                 if (!this.customer_no) {
@@ -444,11 +514,12 @@
                         return
                     }
                     console.log('total pages: ', this.totalPages)
-                    this.where = {}
+                    this.resetCursor()
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
                     this.where['customer_no'] = this.customer_no
-                    await this.$apollo.queries.customers.start()
+                    console.log('where? ',this.where)
+                    await this.$apollo.queries.customers.refetch()
                     // const res = await axios.get(apiUrl+`/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
                     // if(res.data){
                     //     // console.log(res.data)
@@ -481,11 +552,12 @@
                         return
                     }
                     console.log('total pages: ', this.totalPages)
-                    this.where = {}
+                    // this.where = {}
+                    this.resetCursor()
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
-                    console.log(this.where)
-                    await this.$apollo.queries.customers.start()
+                    console.log('where? ',this.where)
+                    await this.$apollo.queries.customers.refetch()
                     // const res = await axios.get(apiUrl+`/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
                     // if(res.data){
                     //     // console.log(res.data)
@@ -509,25 +581,50 @@
                     this.loading = true
                     const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                    const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
-                    if (response.data == null || response.data === undefined) {
+                    const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                    if (response.data == null || response.data === undefined || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
                         return
                     }
-                    for (const res of response.data) {
-                        if (res.id) {
-                            try {
-                                const re = await strapi.deleteEntry('customers', res.id)
-                                console.log(res)
-                            } catch (e) {
-                                console.log(e)
-                            }
-                        }
+                    this.totalPages = Math.ceil(response.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        this.loading = false
+                        return
                     }
-                    alert("حذف با موفقیت انجام شد")
-                    this.loading = false
-                    location.reload()
+                    console.log('total pages: ', this.totalPages)
+                    // this.where = {}
+                    this.resetCursor()
+                    this.where['date_gte'] = fdateFrom
+                    this.where['date_lt'] = fdateTo
+                    console.log('where? ',this.where)
+                    this.search = true
+                    for(var i = 0; i< this.totalPages; i++){
+                      this.movePageDelete(i)
+                      await this.$apollo.queries.customersDelete.start()
+                    }
+                    this.search = false
+                    // const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                    // if (response.data == null || response.data === undefined) {
+                    //     alert("داده ای یافت نشد")
+                    //     this.loading = false
+                    //     return
+                    // }
+                    // for (const res of response.data) {
+                    //     if (res.id) {
+                    //         try {
+                    //             const re = await strapi.deleteEntry('customers', res.id)
+                    //             console.log(res)
+                    //         } catch (e) {
+                    //             console.log(e)
+                    //         }
+                    //     }
+                    // }
+                    // alert("حذف با موفقیت انجام شد")
+                    // this.loading = false
+                    // location.reload()
+                    this.reload()
                 } catch (e) {
                     console.log(e)
                     this.loading = false
@@ -543,25 +640,45 @@
                     this.loading = true
                     const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                    const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
+                    const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
                     if (response.data == null || response.data === undefined || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
                         return
                     }
-                    for (const res of response.data) {
-                        if (res.id) {
-                            try {
-                                const re = await strapi.deleteEntry('customers', res.id)
-                                console.log(res)
-                            } catch (e) {
-                                console.log(e)
-                            }
-                        }
+                    this.totalPages = Math.ceil(response.data / 100)
+                    if (!this.totalPages) {
+                        alert("داده ای یافت نشد.")
+                        this.loading = false
+                        return
                     }
-                    alert("حذف با موفقیت انجام شد")
-                    this.loading = false
-                    location.reload()
+                    console.log('total pages: ', this.totalPages)
+                    // this.where = {}
+                    this.resetCursor()
+                    this.where['date_gte'] = fdateFrom
+                    this.where['date_lt'] = fdateTo
+                    this.where['customer_no'] = this.customer_no
+                    console.log('where? ',this.where)
+                    this.search = true
+                    for(var i = 0; i< this.totalPages; i++){
+                        this.movePageDelete(i)
+                        await this.$apollo.queries.customersDelete.start()
+                    }
+                    this.search = false
+                    // for (const res of response.data) {
+                    //     if (res.id) {
+                    //         try {
+                    //             const re = await strapi.deleteEntry('customers', res.id)
+                    //             console.log(res)
+                    //         } catch (e) {
+                    //             console.log(e)
+                    //         }
+                    //     }
+                    // }
+                    // alert("حذف با موفقیت انجام شد")
+                    // this.loading = false
+                    // location.reload()
+                    this.reload()
                 } catch (e) {
                     console.log(e)
                     this.loading = false
@@ -584,6 +701,11 @@
                 this.$bvModal.show('modal-edit-excel')
             },
 
+            resetCursor() {
+                this.where = {}
+                this.start = 0
+                this.currentPage = 1
+            }
         },
         computed: {
             startPage() {

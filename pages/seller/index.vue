@@ -228,7 +228,7 @@
           }
       },
       async mounted(){
-          this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
+          await this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
           await this.$apollo.queries.sellers.start()
       },
     data() {

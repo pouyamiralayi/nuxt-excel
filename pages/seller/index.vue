@@ -237,28 +237,9 @@
           },
       },
       async created(){
-          if(!this.isLoggedIn){
-              this.$router.push('/')
-          }
-          const resp = await axios.get(apiUrl+'/sellers/count')
-          if(resp.data){
-              // console.log(resp.data)
-              this.totalPages = Math.ceil(resp.data / 100)
-              if(!this.totalPages){
-                  alert("داده ای یافت نشد.")
-                  return
-              }
-              console.log('total pages: ',this.totalPages)
-          }
-          else{
-              alert("داده ای یافت نشد.")
-              // this.$router.push('/')
-              return
-          }
+          this.reload()
       },
       async mounted(){
-          await this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
-          await this.$apollo.queries.sellers.start()
       },
     data() {
       return {
@@ -274,7 +255,9 @@
           loading: false,
           seller_no:'',
           dateFrom:'',
+          dateFromG:'',
           dateTo:'',
+          dateToG:'',
           sellers:[],
         query: '',
         queryCustomer: '',

@@ -221,11 +221,7 @@
                     }
                 },
                 watchLoading(isLoading) {
-                    if (isLoading) {
-                        this.loading = true
-                    } else {
-                        this.loading = false
-                    }
+                    this.loading = !!isLoading;
                 },
                 result({data, loading, networkStatus}) {
                     if (!loading) {
@@ -279,24 +275,6 @@
             EditExcel,
         },
         methods: {
-            deleteCustomer(){
-                return this.$apollo.mutate({
-                  mutation: gql`
-                      mutation deleteCustomer($where:InputID) {
-                        deleteCustomer(input: {
-                          where:$where
-                        }) {
-                          customer {
-                            customer_name
-                          }
-                        }
-                    }
-                  `,
-                  variables:{
-                      id:this.id
-                  },
-              })
-            },
             async reload(){
                 /*reset data*/
                 this.resetCursor()
@@ -426,14 +404,6 @@
                 console.log('where? ',this.where)
                 await this.$apollo.queries.customers.refetch()
             },
-            movePageDelete(i) {
-                if(i<=0){
-                    return
-                }
-                this.start = ((i - 1) * this.limit)
-                console.log("Moved to Page: ", i)
-                console.log("Moved Start to: ", this.start)
-            },
             async searchRange(){
                 if (!this.customer_no) {
                     alert("شمارۀ مشتری را مشخص نمایید")
@@ -444,7 +414,7 @@
                     const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
-                    if (response.data == null || response.data === undefined || !response.data) {
+                    if (response.data == null || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
                         return
@@ -473,7 +443,7 @@
                     const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
-                    if (response.data == null || response.data === undefined || !response.data) {
+                    if (response.data == null || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
                         return
@@ -501,7 +471,7 @@
                     const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
-                    if (response.data == null || response.data === undefined || !response.data) {
+                    if (response.data == null || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
                         return
@@ -543,13 +513,9 @@
                                 await strapi.deleteEntry('customers', id.id)
                                 // console.log(re)
                               }
-                              else{
-                                  continue
-                              }
                           }
                           catch(err){
                               console.log("DELETE! ",err)
-                              continue
                           }
                       }
                     }
@@ -574,7 +540,7 @@
                         `/customers/count?date_gte=${fdateFrom}
                         &date_lt=${fdateTo}
                         &customer_no=${this.customer_no}`)
-                    if (response.data == null || response.data === undefined || !response.data) {
+                    if (response.data == null || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
                         return
@@ -623,12 +589,12 @@
                                     // console.log(re)
                                 }
                                 else{
-                                    continue
+
                                 }
                             }
                             catch (e) {
                                 console.log("DELETE! ",err)
-                                continue
+
                             }
                         }
                       }
@@ -696,12 +662,6 @@
 
                 return range;
             },
-            isInFirstPage() {
-                return this.currentPage === 1;
-            },
-            isInLastPage() {
-                return this.currentPage === this.totalPages;
-            },
             isLoggedIn() {
                 return this.$store.getters['auth/username']
             },
@@ -709,7 +669,7 @@
             //   return this.$store.getters['customers/loading']
             // },
             filteredList() {
-                if (this.query == "") {
+                if (this.query === "") {
                     return this.customers
                 }
                 return this.customers && this.customers.filter(excel => {
@@ -736,11 +696,11 @@
     margin: 15px;
     max-width: 20rem;
     text-align: center;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
   }
 
   .card:hover {
-    box-shadow: 20px 20px 40px 0px rgba(0, 0, 0, 0.5);
+    box-shadow: 20px 20px 40px 0 rgba(0, 0, 0, 0.5);
   }
 
   .container {

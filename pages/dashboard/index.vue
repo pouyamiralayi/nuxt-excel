@@ -537,9 +537,7 @@
                     const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const response = await axios.get(apiUrl +
-                        `/customers/count?date_gte=${fdateFrom}
-                        &date_lt=${fdateTo}
-                        &customer_no=${this.customer_no}`)
+                        `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
                     if (response.data == null || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
@@ -561,11 +559,7 @@
                     console.log("Total Pages: ", this.totalPages)
                     for(var i = 0; i< this.totalPages; i++){
                         try{
-                            const resp = await axios.get(apiUrl+
-                                `/customers?_start=${this.start}
-                                &date_gte=${this.where['date_gte']}
-                                &date_lt=${this.where['date_lt']}
-                                &customer_no=${this.where['customer_no']}`)
+                            const resp = await axios.get(apiUrl+`/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}&customer_no=${this.where['customer_no']}`)
                             if(resp.data){
                                 targets = resp.data
                             }

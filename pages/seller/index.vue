@@ -216,12 +216,7 @@
               watchLoading(isLoading) {
                   // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
                   // following is not working:
-                  if (isLoading) {
-                    this.loading = true
-                  }
-                  else {
-                      this.loading = false
-                  }
+                  this.loading = !!isLoading;
               },
               result ({ data, loading, networkStatus }) {
                   if(!loading){
@@ -305,8 +300,7 @@
                 this.$router.push('/')
                 return
             }
-            const resp = await axios.get(apiUrl + `/sellers/count?
-            seller_no_contains=${this.seller_no_query}`)
+            const resp = await axios.get(apiUrl + `/sellers/count?seller_no_contains=${this.seller_no_query}`)
             if (resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -333,8 +327,7 @@
                 this.$router.push('/')
                 return
             }
-            const resp = await axios.get(apiUrl + `/sellers/count?
-            seller_name_contains=${this.seller_name_query}`)
+            const resp = await axios.get(apiUrl + `/sellers/count?seller_name_contains=${this.seller_name_query}`)
             if (resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -361,8 +354,7 @@
                 this.$router.push('/')
                 return
             }
-            const resp = await axios.get(apiUrl + '/sellers/count?' +
-                'product_contains='+this.seller_product_query)
+            const resp = await axios.get(apiUrl + '/sellers/count?product_contains='+this.seller_product_query)
             if (resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -393,9 +385,8 @@
                 this.loading = true
                 const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                 const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                const response = await axios.get(apiUrl + `/sellers/count?
-                date_gte=${fdateFrom}&date_lt=${fdateTo}`)
-                if (response.data == null || response.data === undefined || !response.data) {
+                const response = await axios.get(apiUrl + `/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                if (response.data == null || !response.data) {
                     alert("داده ای یافت نشد")
                     this.loading = false
                     return
@@ -426,11 +417,8 @@
                 this.loading = true
                 const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                 const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                const response = await axios.get(apiUrl + `/sellers/count?
-                date_gte=${fdateFrom}
-                &date_lt=${fdateTo}
-                &seller_no=${this.seller_no}`)
-                if (response.data == null || response.data === undefined || !response.data) {
+                const response = await axios.get(apiUrl + `/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&seller_no=${this.seller_no}`)
+                if (response.data == null || !response.data) {
                     alert("داده ای یافت نشد")
                     this.loading = false
                     return
@@ -464,7 +452,7 @@
               const fdateFrom = moment( this.dateFrom ,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
               const fdateTo =  moment(this.dateTo,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
               const response = await axios.get(apiUrl+`/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&seller_no=${this.seller_no}`)
-              if(response.data == null || response.data === undefined){
+              if(response.data == null){
                   alert("داده ای یافت نشد")
                   return
               }
@@ -485,10 +473,7 @@
                 for(var i = 0; i< this.totalPages; i++){
                     try{
                         const resp = await axios.get(apiUrl+
-                            `/sellers?_start=${this.start}
-                                &date_gte=${this.where['date_gte']}
-                                &date_lt=${this.where['date_lt']}
-                                &seller_no=${this.where['seller_no']}`)
+                            `/sellers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}&seller_no=${this.where['seller_no']}`)
                         if(resp.data){
                             targets = resp.data
                         }
@@ -511,13 +496,9 @@
                                     'sellers', id.id)
                                 // console.log(re)
                             }
-                            else{
-                                continue
-                            }
                         }
-                        catch (e) {
+                        catch (err) {
                             console.log("DELETE! ",err)
-                            continue
                         }
                     }
                 }
@@ -535,9 +516,8 @@
                 const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                 const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                 const response = await axios.get(apiUrl +
-                    `/sellers/count?date_gte=${fdateFrom}
-                    &date_lt=${fdateTo}`)
-                if (response.data == null || response.data === undefined || !response.data) {
+                    `/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                if (response.data == null || !response.data) {
                     alert("داده ای یافت نشد")
                     this.loading = false
                     return
@@ -557,10 +537,7 @@
                 console.log("Total Pages: ", this.totalPages)
                 for(var i = 1; i <= this.totalPages; i++){
                     try{
-                        const resp = await axios.get(apiUrl+`/sellers?
-                        _start=${this.start}
-                        &date_gte=${this.where['date_gte']}
-                        &date_lt=${this.where['date_lt']}`)
+                        const resp = await axios.get(apiUrl+`/sellers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
                         if(resp.data){
                             targets = resp.data
                         }
@@ -582,12 +559,12 @@
                                 // console.log(re)
                             }
                             else{
-                                continue
+
                             }
                         }
                         catch(err){
                             console.log("DELETE! ",err)
-                            continue
+
                         }
                     }
                 }
@@ -657,7 +634,7 @@
         //     return this.$store.getters['sellers/loading']
         // },
       filteredList(){
-        if(this.query == ""){
+        if(this.query === ""){
             return this.sellers
         }
         return this.sellers && this.sellers.filter(seller => {
@@ -687,11 +664,11 @@
     margin: 15px;
     max-width: 20rem;
     text-align: center;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
   }
 
   .card:hover {
-    box-shadow: 20px 20px 40px 0px rgba(0, 0, 0, 0.5);
+    box-shadow: 20px 20px 40px 0 rgba(0, 0, 0, 0.5);
   }
 
   .container {

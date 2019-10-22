@@ -183,7 +183,6 @@
 <script>
     import moment from 'moment-jalaali'
     import qs from 'qs'
-  // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
   import axios from "axios";
 
   import AppLogo from '~/components/AppLogo.vue'
@@ -194,7 +193,6 @@
   import {mapGetters} from 'vuex'
 
   import SellersQueryParam from '@/apollo/queries/SellersQueryParam.gql'
-  // import SellersQuery from '@/apollo/queries/SellersQuery.gql'
 
 
   // const apiUrl = process.env.API_URL || ''
@@ -267,9 +265,9 @@
     components: {
         datePicker: () => import('vue-persian-datetime-picker'),
         AppLogo,
-      AddExcel,
-      AddCustomer,
-      EditExcel,
+        AddExcel,
+        AddCustomer,
+        EditExcel,
     },
     methods: {
         resetCursor() {
@@ -307,7 +305,8 @@
                 this.$router.push('/')
                 return
             }
-            const resp = await axios.get(apiUrl + `/sellers/count?seller_no_contains=${this.seller_no_query}`)
+            const resp = await axios.get(apiUrl + `/sellers/count?
+            seller_no_contains=${this.seller_no_query}`)
             if (resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -320,16 +319,10 @@
                 alert("داده ای یافت نشد.")
                 return
             }
-            this.loading = true
-            const res = await axios.get(apiUrl+`/sellers?seller_no_contains=${this.seller_no_query}`)
-            if(res.data){
-                // console.log(res.data)
-                this.sellers = res.data
-            }
-            else{
-                alert("داده ای یافت نشد.")
-            }
-            this.loading = false
+            this.resetCursor()
+            this.where['seller_no_contains'] = this.seller_no_query
+            console.log('where? ',this.where)
+            await this.$apollo.queries.sellers.refetch()
         },
         async searchSellerName(){
             if(!this.seller_name_query){
@@ -340,7 +333,8 @@
                 this.$router.push('/')
                 return
             }
-            const resp = await axios.get(apiUrl + `/sellers/count?seller_name_contains=${this.seller_name_query}`)
+            const resp = await axios.get(apiUrl + `/sellers/count?
+            seller_name_contains=${this.seller_name_query}`)
             if (resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -353,16 +347,10 @@
                 alert("داده ای یافت نشد.")
                 return
             }
-            this.loading = true
-            const res = await axios.get(apiUrl+`/sellers?seller_name_contains=${this.seller_name_query}`)
-            if(res.data){
-                // console.log(res.data)
-                this.sellers = res.data
-            }
-            else{
-                alert("داده ای یافت نشد.")
-            }
-            this.loading = false
+            this.resetCursor()
+            this.where['seller_name_contains'] = this.seller_name_query
+            console.log('where? ',this.where)
+            await this.$apollo.queries.sellers.refetch()
         },
         async searchProduct(){
             if(!this.seller_product_query){
@@ -373,7 +361,8 @@
                 this.$router.push('/')
                 return
             }
-            const resp = await axios.get(apiUrl + '/sellers/count?product_contains='+this.seller_product_query)
+            const resp = await axios.get(apiUrl + '/sellers/count?' +
+                'product_contains='+this.seller_product_query)
             if (resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -386,27 +375,10 @@
                 alert("داده ای یافت نشد.")
                 return
             }
-            // const res = await axios(apiUrl + '/sellers/',
-            this.loading = true
-            const res = await axios(apiUrl + '/sellers?product_contains='+this.seller_product_query)
-                // {
-              //     method:'get',
-              //       params:{
-              //           product_contains:this.seller_product_query,
-              //       },
-              //       paramsSerializer: function(params){
-              //           const query = qs.stringify(params)
-              //           return query
-              //       }
-              // })
-            if(res.data){
-                // console.log(res.data)
-                this.sellers = res.data
-            }
-            else{
-                alert("داده ای یافت نشد.")
-            }
-            this.loading = false
+            this.resetCursor()
+            this.where['product_contains'] = this.seller_product_query
+            console.log('where? ',this.where)
+            await this.$apollo.queries.sellers.refetch()
         },
         async movePage(i){
             if(i <= 0){

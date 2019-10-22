@@ -576,7 +576,7 @@
                     return
                 }
                 // this.currentPage = i
-                this.start = (i - 1) * this.limit
+                this.start = ((i - 1) * this.limit)
                 console.log("Moved to Page: ", i)
                 console.log("Moved Start to: ", this.start)
                 // await this.$apollo.queries.customers.start()
@@ -693,7 +693,7 @@
                     var targets = []
                     console.log("Total Pages: ", this.totalPages)
                     for(var i = 1; i <= this.totalPages; i++){
-                        this.movePageDelete(i)
+                        // this.movePageDelete(i)
                         try{
                             const resp = await axios.get(apiUrl+`/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
                             if(resp.data){

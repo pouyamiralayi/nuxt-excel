@@ -249,7 +249,7 @@
                 manual: true,
                 prefetch: false,
                 query: CustomersQueryParam,
-                // fetchPolicy: 'no-cache',
+                fetchPolicy: 'no-cache',
                 variables() {
                     return {
                         start: this.start,
@@ -392,17 +392,17 @@
                   variables:{
                       id:this.id
                   },
-                  update: (store, { data: { customerId } }) => {
-                      console.log(customerId)
+                  // update: (store, { data: { customerId } }) => {
+                      // console.log(customerId)
                       // Read the data from our cache for this query.
-                      const customers = store.readQuery({ query: CustomersQueryParam })
+                      // const customers = store.readQuery({ query: CustomersQueryParam })
                       // console.log(customers)
                       // data.customers
                       // Add our tag from the mutation to the end
                       // data.tags.push(addTag)
                       // Write our data back to the cache.
                       // store.writeQuery({ query: TAGS_QUERY, data })
-                  },
+                  // },
                   // optimisticResponse: {
                   //     __typename: 'Mutation',
                   //     addTag: {
@@ -416,6 +416,7 @@
             async reload(){
                 /*reset data*/
                 this.resetCursor()
+                this.search = false
                 /*check login*/
                 if (!this.isLoggedIn) {
                     this.$router.push('/')
@@ -688,20 +689,33 @@
                     // await this.deleteCustomer()
                     this.search = true
                     for(var i = 0; i< this.totalPages; i++){
-                      this.movePageDelete(i)
-                      await this.$apollo.queries.targets.refetch()
+                        this.movePageDelete(i)
+                        try{
+                          await this.$apollo.queries.targets.refetch()
+                        }
+                        catch (e) {
+                            console.log("TARGETS! ", e.message)
+                            continue
+                        }
                       // await this.$apollo.queries.customersDelete.refetch()
                       for(var id of this.targets){
-                        // console.log("ID ?", id)
+                        console.log("ID ?", id.id)
                         // this.id = id
-                          this.where_id = {'id':id}
+                        //   this.where_id = {'id':id}
                         // this.where['id'] = id
                           try{
-                            const data = await this.deleteCustomer()
-                            console.log(data)
+                              if(id){
+                                const re = await strapi.deleteEntry('customers', id.id)
+                                console.log(re)
+                              }
+                              else{
+                                  continue
+                              }
+                            // const data = await this.deleteCustomer()
                           }
                           catch(err){
                               console.log("DELETE! ",err)
+                              continue
                           }
                           // .then(data => {
                           //   // this.loading = false
@@ -715,7 +729,7 @@
                           // })
                       }
                     }
-                    this.search = false
+                    // this.search = false
                     alert("ذف با موفقیت انجام شد.")
                     this.reload()
                     // const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)

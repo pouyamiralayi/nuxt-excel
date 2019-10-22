@@ -23,6 +23,28 @@
         <client-only>
           <div style="display: flex; justify-content: flex-start">
             <div class="form-group mt-3">
+              <!--              <input v-model="customer_no" type="text" class="form-control pt-2 pb-2 mt-2"-->
+              <!--                     placeholder="کد مشتری را وارد نمایید...">-->
+            </div>
+            <div class="text-right">
+              <span>از تاریخ:</span><br>
+              <date-picker v-model="dateFromG"></date-picker>
+            </div>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="text-right">
+              <span>تا تاریخ:</span><br>
+              <date-picker v-model="dateToG" class=""></date-picker>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="form-group mt-4">
+              <b-button type="submit" variant="success" @click="searchRangeGlobal">جستجو</b-button>&nbsp;&nbsp;&nbsp;
+              <b-button type="submit" variant="danger" @click="removeRangeGlobal">حذف</b-button>
+            </div>
+          </div>
+        </client-only>
+        <client-only>
+          <div style="display: flex; justify-content: flex-start">
+            <div class="form-group mt-3">
               <input v-model="seller_no" type="text" class="form-control pt-2 pb-2 mt-2" placeholder="کد فروشنده را وارد نمایید...">
             </div>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -37,6 +59,7 @@
             </div>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <div class="form-group mt-4">
+              <b-button type="submit" variant="success" @click="searchRange">جستجو</b-button>&nbsp;&nbsp;&nbsp;
               <b-button type="submit" variant="danger" @click="removeRange">حذف</b-button>
             </div>
           </div>
@@ -182,12 +205,14 @@
       apollo: {
           sellers: {
               manual:true,
+              prefetch:false,
               query: SellersQueryParam,
               variables(){
                   return {
                       start: this.start,
                       limit: this.limit,
-                      sort:'id:asc'
+                      sort:'id:asc',
+                      where:this.where
                   }
               },
               watchLoading(isLoading) {
@@ -204,6 +229,10 @@
                   if(!loading){
                       this.sellers = data.sellers
                   }
+              },
+              error (error) {
+                  alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
+                  console.error('We\'ve got an error!', error)
               },
           },
       },
@@ -233,6 +262,7 @@
       },
     data() {
       return {
+          where:{},
           seller_no_query:'',
           seller_name_query:'',
           seller_product_query:'',
@@ -259,8 +289,31 @@
       EditExcel,
     },
     methods: {
-        reload(){
-          location.reload()
+        resetCursor() {
+            this.where = {}
+            this.start = 0
+            this.currentPage = 1
+        },
+        async reload(){
+            this.resetCursor()
+            if (!this.isLoggedIn) {
+                this.$router.push('/')
+                return
+            }
+            axios.defaults.headers.common.Authorization = 'Bearer ' + this.$store.getters['auth/token'];
+            const resp = await axios.get(apiUrl + '/sellers/count')
+            if (resp.data) {
+                this.totalPages = Math.ceil(resp.data / 100)
+                if (!this.totalPages) {
+                    alert("داده ای یافت نشد.")
+                    return
+                }
+                console.log('total pages: ', this.totalPages)
+            } else {
+                alert("داده ای یافت نشد.")
+                return
+            }
+            await this.$apollo.queries.sellers.refetch()
         },
         async searchSellerNo(){
             if(!this.seller_no_query){
@@ -380,6 +433,72 @@
             this.start =  (i-1) * this.limit
             await this.$apollo.queries.sellers.start()
         },
+        async searchRangeGlobal(){
+            try {
+                this.loading = true
+                const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                const response = await axios.get(apiUrl + `/sellers/count?
+                date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                if (response.data == null || response.data === undefined || !response.data) {
+                    alert("داده ای یافت نشد")
+                    this.loading = false
+                    return
+                }
+                this.totalPages = Math.ceil(response.data / 100)
+                if (!this.totalPages) {
+                    alert("داده ای یافت نشد.")
+                    this.loading = false
+                    return
+                }
+                console.log('total pages: ', this.totalPages)
+                this.resetCursor()
+                this.where['date_gte'] = fdateFrom
+                this.where['date_lt'] = fdateTo
+                console.log('where? ',this.where)
+                await this.$apollo.queries.sellers.refetch()
+            } catch (e) {
+                console.log(e)
+                this.loading = false
+            }
+        },
+        async searchRange(){
+            if (!this.seller_no) {
+                alert("شمارۀ فروشنده را مشخص نمایید")
+                return
+            }
+            try {
+                this.loading = true
+                const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                const response = await axios.get(apiUrl + `/sellers/count?
+                date_gte=${fdateFrom}
+                &date_lt=${fdateTo}
+                &seller_no=${this.seller_no}`)
+                if (response.data == null || response.data === undefined || !response.data) {
+                    alert("داده ای یافت نشد")
+                    this.loading = false
+                    return
+                }
+                this.totalPages = Math.ceil(response.data / 100)
+                if (!this.totalPages) {
+                    alert("داده ای یافت نشد.")
+                    this.loading = false
+                    return
+                }
+                console.log('total pages: ', this.totalPages)
+                this.resetCursor()
+                this.where['date_gte'] = fdateFrom
+                this.where['date_lt'] = fdateTo
+                this.where['seller_no'] = this.seller_no
+                console.log('where? ',this.where)
+                await this.$apollo.queries.sellers.refetch()
+            } catch (e) {
+                console.log(e)
+                this.loading = false
+            }
+        },
+
         async removeRange(){
             if(!this.seller_no){
                 alert("شمارۀ فروشنده را مشخص نمایید")
@@ -389,27 +508,137 @@
               this.loading = true
               const fdateFrom = moment( this.dateFrom ,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
               const fdateTo =  moment(this.dateTo,"jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-              const response = await axios.get(apiUrl+`/sellers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&seller_no=${this.seller_no}`)
+              const response = await axios.get(apiUrl+`/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&seller_no=${this.seller_no}`)
               if(response.data == null || response.data === undefined){
                   alert("داده ای یافت نشد")
                   return
               }
-              for(const res of response.data){
-                  if(res.id){
-                      try{
-                          const re = await strapi.deleteEntry('sellers',res.id)
-                          console.log(res)
-                      }
-                      catch (e) {
-                          console.log(e)
-                      }
-                  }
+              this.totalPages = Math.ceil(response.data / 100)
+              if (!this.totalPages) {
+                  alert("داده ای یافت نشد.")
+                  this.loading = false
+                  return
               }
+              console.log('total pages: ', this.totalPages)
+                this.resetCursor()
+                this.where['date_gte'] = fdateFrom
+                this.where['date_lt'] = fdateTo
+                this.where['seller_no'] = this.seller_no
+                console.log('where? ',this.where)
+                var targets = []
+                console.log("Total Pages: ", this.totalPages)
+                for(var i = 0; i< this.totalPages; i++){
+                    try{
+                        const resp = await axios.get(apiUrl+
+                            `/sellers?_start=${this.start}
+                                &date_gte=${this.where['date_gte']}
+                                &date_lt=${this.where['date_lt']}
+                                &seller_no=${this.where['seller_no']}`)
+                        if(resp.data){
+                            targets = resp.data
+                        }
+                        else{
+                            targets = []
+                            continue
+                        }
+                        // console.log("Targets: ",targets)
+                    }
+                    catch (e) {
+                        console.log("TARGETS! ", e.message)
+                        continue
+                    }
+                    for(var id of targets) {
+                        // console.log("ID ?", id.id)
+                        try{
+                            if(id){
+                                // const re = await strapi.deleteEntry(
+                                await strapi.deleteEntry(
+                                    'sellers', id.id)
+                                // console.log(re)
+                            }
+                            else{
+                                continue
+                            }
+                        }
+                        catch (e) {
+                            console.log("DELETE! ",err)
+                            continue
+                        }
+                    }
+                }
               alert("حذف با موفقیت انجام شد")
-              this.loading = false
-                location.reload()
+              this.reload()
             }
             catch (e) {
+                console.log(e)
+                this.loading = false
+            }
+        },
+        async removeRangeGlobal(){
+            try {
+                this.loading = true
+                const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
+                const response = await axios.get(apiUrl +
+                    `/sellers/count?date_gte=${fdateFrom}
+                    &date_lt=${fdateTo}`)
+                if (response.data == null || response.data === undefined || !response.data) {
+                    alert("داده ای یافت نشد")
+                    this.loading = false
+                    return
+                }
+                this.totalPages = Math.ceil(response.data / 100)
+                if (!this.totalPages) {
+                    alert("داده ای یافت نشد.")
+                    this.loading = false
+                    return
+                }
+                console.log('total pages: ', this.totalPages)
+                this.resetCursor()
+                this.where['date_gte'] = fdateFrom
+                this.where['date_lt'] = fdateTo
+                console.log('where? ',this.where)
+                var targets = []
+                console.log("Total Pages: ", this.totalPages)
+                for(var i = 1; i <= this.totalPages; i++){
+                    try{
+                        const resp = await axios.get(apiUrl+`/sellers?
+                        _start=${this.start}
+                        &date_gte=${this.where['date_gte']}
+                        &date_lt=${this.where['date_lt']}`)
+                        if(resp.data){
+                            targets = resp.data
+                        }
+                        else{
+                            targets = []
+                            continue
+                        }
+                        // console.log("Targets: ",targets)
+                    }
+                    catch (e) {
+                        console.log("TARGETS! ", e.message)
+                        continue
+                    }
+                    for(var id of targets){
+                        // console.log("ID ?", id.id)
+                        try{
+                            if(id){
+                                await strapi.deleteEntry('sellers', id.id)
+                                // console.log(re)
+                            }
+                            else{
+                                continue
+                            }
+                        }
+                        catch(err){
+                            console.log("DELETE! ",err)
+                            continue
+                        }
+                    }
+                }
+                alert("حذف با موفقیت انجام شد.")
+                this.reload()
+            } catch (e) {
                 console.log(e)
                 this.loading = false
             }

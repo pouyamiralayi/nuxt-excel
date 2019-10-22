@@ -1,5 +1,5 @@
-query($start: Int, $limit: Int, $sort: String) {
-             sellers(start:$start, limit:$limit, sort:$sort){
+query($start: Int, $limit: Int, $sort: String, $where:JSON) {
+             sellers(start:$start, limit:$limit, sort:$sort, where:$where){
                 id
                 fin_year
                 record_no

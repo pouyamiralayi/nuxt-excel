@@ -275,7 +275,7 @@
                 },
                 error (error) {
                     alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
-                    // console.error('We\'ve got an error!', error)
+                    console.error('We\'ve got an error!', error)
                 },
             },
             // customersDelete: {
@@ -352,12 +352,10 @@
                 where:{},
                 loading: false,
                 customer_no: '',
-                dateFromGS: '',
                 dateFromG: '',
                 dateFrom: '',
                 dateTo: '',
                 dateToG: '',
-                dateToGS: '',
                 customers: [],
                 customersDelete: [],
                 query: '',

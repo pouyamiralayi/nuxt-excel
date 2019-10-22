@@ -207,44 +207,44 @@
 
     export default {
         apollo: {
-            targets:{
-              manual:true,
-              prefetch:false,
-              query:CustomersQueryId,
-              fetchPolicy:'no-cache',
-              variables(){
-                  return {
-                      start: this.start,
-                      limit: this.limit,
-                      sort: 'id:asc',
-                      where:this.where
-                  }
-              },
-              skip() {
-                return !this.search
-              },
-                watchLoading(isLoading) {
-                    // console.log('isLoading: ',isLoading)
-                    // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
-                    // following is not working:
-                    // if (isLoading) {
-                    //     this.loading = true
-                    // } else {
-                    //     this.loading = false
-                    // }
-                },
-                update: data => data.customers,
-                result({data, loading, networkStatus}) {
-                    if (!loading) {
-                        this.targets = data.customers
-                        console.log(this.targets)
-                        return
-                    }
-                },
-                error (error) {
-                    console.error('TARGETS! ', error)
-                },
-            },
+            // targets:{
+            //   manual:true,
+            //   prefetch:false,
+            //   query:CustomersQueryId,
+            //   fetchPolicy:'no-cache',
+            //   variables(){
+            //       return {
+            //           start: this.start,
+            //           limit: this.limit,
+            //           sort: 'id:asc',
+            //           where:this.where
+            //       }
+            //   },
+            //   skip() {
+            //     return !this.search
+            //   },
+            //     watchLoading(isLoading) {
+            //         // console.log('isLoading: ',isLoading)
+            //         // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
+            //         // following is not working:
+            //         // if (isLoading) {
+            //         //     this.loading = true
+            //         // } else {
+            //         //     this.loading = false
+            //         // }
+            //     },
+            //     update: data => data.customers,
+            //     result({data, loading, networkStatus}) {
+            //         if (!loading) {
+            //             this.targets = data.customers
+            //             console.log(this.targets)
+            //             return
+            //         }
+            //     },
+            //     error (error) {
+            //         console.error('TARGETS! ', error)
+            //     },
+            // },
             customers: {
                 manual: true,
                 prefetch: false,
@@ -577,6 +577,8 @@
                 }
                 // this.currentPage = i
                 this.start = (i - 1) * this.limit
+                console.log("Moved to Page: ", i)
+                console.log("Moved Start to: ", this.start)
                 // await this.$apollo.queries.customers.start()
             },
             async searchRange(){
@@ -687,18 +689,29 @@
                     this.where['date_lt'] = fdateTo
                     console.log('where? ',this.where)
                     // await this.deleteCustomer()
-                    this.search = true
-                    for(var i = 0; i< this.totalPages; i++){
+                    // this.search = true
+                    var targets = []
+                    console.log("Total Pages: ", this.totalPages)
+                    for(var i = 1; i <= this.totalPages; i++){
                         this.movePageDelete(i)
                         try{
-                          await this.$apollo.queries.targets.refetch()
+                            const resp = await axios.get(apiUrl+`/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
+                            if(resp.data){
+                              targets = resp.data
+                            }
+                            else{
+                                targets = []
+                                continue
+                            }
+                            console.log("Targets: ",targets)
+                          // await this.$apollo.queries.targets.refetch()
                         }
                         catch (e) {
                             console.log("TARGETS! ", e.message)
                             continue
                         }
                       // await this.$apollo.queries.customersDelete.refetch()
-                      for(var id of this.targets){
+                      for(var id of targets){
                         console.log("ID ?", id.id)
                         // this.id = id
                         //   this.where_id = {'id':id}
@@ -717,41 +730,10 @@
                               console.log("DELETE! ",err)
                               continue
                           }
-                          // .then(data => {
-                          //   // this.loading = false
-                          //   // this.search = false
-                          //   // this.reload()
-                          // })
-                          // .catch(error => {
-                          //     // this.loading = false
-                          //     // this.search = false
-                          //     // this.reload()
-                          // })
                       }
                     }
-                    // this.search = false
-                    alert("ذف با موفقیت انجام شد.")
+                    alert("حذف با موفقیت انجام شد.")
                     this.reload()
-                    // const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
-                    // if (response.data == null || response.data === undefined) {
-                    //     alert("داده ای یافت نشد")
-                    //     this.loading = false
-                    //     return
-                    // }
-                    // for (const res of response.data) {
-                    //     if (res.id) {
-                    //         try {
-                    //             const re = await strapi.deleteEntry('customers', res.id)
-                    //             console.log(res)
-                    //         } catch (e) {
-                    //             console.log(e)
-                    //         }
-                    //     }
-                    // }
-                    // alert("حذف با موفقیت انجام شد")
-                    // this.loading = false
-                    // location.reload()
-                    // this.reload()
                 } catch (e) {
                     console.log(e)
                     this.loading = false

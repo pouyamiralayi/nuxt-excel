@@ -207,44 +207,6 @@
 
     export default {
         apollo: {
-            // targets:{
-            //   manual:true,
-            //   prefetch:false,
-            //   query:CustomersQueryId,
-            //   fetchPolicy:'no-cache',
-            //   variables(){
-            //       return {
-            //           start: this.start,
-            //           limit: this.limit,
-            //           sort: 'id:asc',
-            //           where:this.where
-            //       }
-            //   },
-            //   skip() {
-            //     return !this.search
-            //   },
-            //     watchLoading(isLoading) {
-            //         // console.log('isLoading: ',isLoading)
-            //         // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
-            //         // following is not working:
-            //         // if (isLoading) {
-            //         //     this.loading = true
-            //         // } else {
-            //         //     this.loading = false
-            //         // }
-            //     },
-            //     update: data => data.customers,
-            //     result({data, loading, networkStatus}) {
-            //         if (!loading) {
-            //             this.targets = data.customers
-            //             console.log(this.targets)
-            //             return
-            //         }
-            //     },
-            //     error (error) {
-            //         console.error('TARGETS! ', error)
-            //     },
-            // },
             customers: {
                 manual: true,
                 prefetch: false,
@@ -259,9 +221,6 @@
                     }
                 },
                 watchLoading(isLoading) {
-                    // console.log('isLoading: ',isLoading)
-                    // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
-                    // following is not working:
                     if (isLoading) {
                         this.loading = true
                     } else {
@@ -278,63 +237,11 @@
                     console.error('We\'ve got an error!', error)
                 },
             },
-            // customersDelete: {
-            //     manual: true,
-            //     prefetch: false,
-            //     query: CustomersQueryDelete,
-            //     fetchPolicy: 'no-cache',
-            //     variables() {
-            //         return {
-            //             start: this.start,
-            //             limit: this.limit,
-            //             sort: 'id:asc',
-            //             where: this.where
-            //         }
-            //     },
-            //     skip(){
-            //       return !this.search
-            //     },
-            //     watchLoading(isLoading) {
-            //         // console.log('isLoading: ',isLoading)
-            //         // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
-            //         // following is not working:
-            //         if (isLoading) {
-            //             this.loading = true
-            //         } else {
-            //             this.loading = false
-            //         }
-            //     },
-            //     async result({data, loading, networkStatus}) {
-            //         if (!loading) {
-            //             this.loading = true
-            //             for (const res of data.customers) {
-            //                 if (res.id) {
-            //                     try {
-            //                         const re = await strapi.deleteEntry('customers', res.id)
-            //                         console.log(res)
-            //                     } catch (e) {
-            //                         console.log(e)
-            //                     }
-            //                 }
-            //             }
-            //             this.search = false
-            //             this.reload()
-            //             // this.customers = data.customers
-            //         }
-            //     },
-            //     error (error) {
-            //         console.error('We\'ve got an error!', error)
-            //     },
-            // },
-
         },
         async created() {
            this.reload()
         },
         async mounted() {
-            // await this.$apolloHelpers.onLogin(this.$store.getters['auth/token'])
-            // console.log(this.$apolloHelpers.getToken())
-            // await this.$apollo.queries.customers.start()
         },
         data() {
             return {
@@ -365,7 +272,6 @@
         },
         components: {
             datePicker: () => import('vue-persian-datetime-picker'),
-            // datePicker: VuePersianDatetimePicker,
             Header,
             AppLogo,
             AddExcel,
@@ -385,30 +291,10 @@
                           }
                         }
                     }
-
                   `,
                   variables:{
                       id:this.id
                   },
-                  // update: (store, { data: { customerId } }) => {
-                      // console.log(customerId)
-                      // Read the data from our cache for this query.
-                      // const customers = store.readQuery({ query: CustomersQueryParam })
-                      // console.log(customers)
-                      // data.customers
-                      // Add our tag from the mutation to the end
-                      // data.tags.push(addTag)
-                      // Write our data back to the cache.
-                      // store.writeQuery({ query: TAGS_QUERY, data })
-                  // },
-                  // optimisticResponse: {
-                  //     __typename: 'Mutation',
-                  //     addTag: {
-                  //         __typename: 'Tag',
-                  //         id: -1,
-                  //         label: newTag,
-                  //     },
-                  // },
               })
             },
             async reload(){
@@ -470,15 +356,6 @@
                 this.where['customer_no_contains'] = this.customer_no_query
                 console.log('where? ',this.where)
                 await this.$apollo.queries.customers.refetch()
-                // const res = await axios.get(apiUrl+`/customers?customer_no_contains=${this.customer_no_query}`)
-                // if(res.data){
-                //     // console.log(res.data)
-                //     this.customers = res.data
-                // }
-                // else{
-                //     alert("داده ای یافت نشد.")
-                // }
-                // this.loading = false
             },
             async searchCustomerName(){
                 if(!this.customer_name_query){
@@ -505,20 +382,10 @@
                     this.loading = false
                     return
                 }
-                // this.where = {}
                 this.resetCursor()
                 this.where['customer_name_contains'] = this.customer_name_query
                 console.log('where? ',this.where)
                 await this.$apollo.queries.customers.refetch()
-                // const res = await axios.get(apiUrl+`/customers?customer_name_contains=${this.customer_name_query}`)
-                // if(res.data){
-                //     // console.log(res.data)
-                //     this.customers = res.data
-                // }
-                // else{
-                //     alert("داده ای یافت نشد.")
-                // }
-                // this.loading  = false
             },
             async searchCustomerDesc(){
                 if(!this.customer_description_query){
@@ -545,20 +412,10 @@
                     this.loading = false
                     return
                 }
-                // this.where = {}
                 this.resetCursor()
                 this.where['description_contains'] = this.customer_description_query
                 console.log('where? ',this.where)
                 await this.$apollo.queries.customers.refetch()
-                // const res = await axios.get(apiUrl+'/customers?description_contains='+this.customer_description_query)
-                // if(res.data){
-                //     // console.log(res.data)
-                //     this.customers = res.data
-                // }
-                // else{
-                //     alert("داده ای یافت نشد.")
-                // }
-                // this.loading = false
             },
             async movePage(i) {
                 if(i<=0){
@@ -573,11 +430,9 @@
                 if(i<=0){
                     return
                 }
-                // this.currentPage = i
                 this.start = ((i - 1) * this.limit)
                 console.log("Moved to Page: ", i)
                 console.log("Moved Start to: ", this.start)
-                // await this.$apollo.queries.customers.start()
             },
             async searchRange(){
                 if (!this.customer_no) {
@@ -607,15 +462,6 @@
                     this.where['customer_no'] = this.customer_no
                     console.log('where? ',this.where)
                     await this.$apollo.queries.customers.refetch()
-                    // const res = await axios.get(apiUrl+`/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
-                    // if(res.data){
-                    //     // console.log(res.data)
-                    //     this.customers = res.data
-                    // }
-                    // else{
-                    //     alert("داده ای یافت نشد.")
-                    // }
-                    // this.loading = false
                 } catch (e) {
                     console.log(e)
                     this.loading = false
@@ -639,31 +485,17 @@
                         return
                     }
                     console.log('total pages: ', this.totalPages)
-                    // this.where = {}
                     this.resetCursor()
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
                     console.log('where? ',this.where)
                     await this.$apollo.queries.customers.refetch()
-                    // const res = await axios.get(apiUrl+`/customers?_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
-                    // if(res.data){
-                    //     // console.log(res.data)
-                    //     this.customers = res.data
-                    // }
-                    // else{
-                    //     alert("داده ای یافت نشد.")
-                    // }
-                    // this.loading = false
                 } catch (e) {
                     console.log(e)
                     this.loading = false
                 }
             },
             async removeRangeGlobal() {
-                // if (!this.customer_no) {
-                //     alert("شمارۀ مشتری را مشخص نمایید")
-                //     return
-                // }
                 try {
                     this.loading = true
                     const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
@@ -681,17 +513,13 @@
                         return
                     }
                     console.log('total pages: ', this.totalPages)
-                    // this.where = {}
                     this.resetCursor()
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
                     console.log('where? ',this.where)
-                    // await this.deleteCustomer()
-                    // this.search = true
                     var targets = []
                     console.log("Total Pages: ", this.totalPages)
                     for(var i = 1; i <= this.totalPages; i++){
-                        // this.movePageDelete(i)
                         try{
                             const resp = await axios.get(apiUrl+`/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
                             if(resp.data){
@@ -702,18 +530,13 @@
                                 continue
                             }
                             // console.log("Targets: ",targets)
-                          // await this.$apollo.queries.targets.refetch()
                         }
                         catch (e) {
                             console.log("TARGETS! ", e.message)
                             continue
                         }
-                      // await this.$apollo.queries.customersDelete.refetch()
                       for(var id of targets){
                         // console.log("ID ?", id.id)
-                        // this.id = id
-                        //   this.where_id = {'id':id}
-                        // this.where['id'] = id
                           try{
                               if(id){
                                 // const re = await strapi.deleteEntry('customers', id.id)
@@ -723,7 +546,6 @@
                               else{
                                   continue
                               }
-                            // const data = await this.deleteCustomer()
                           }
                           catch(err){
                               console.log("DELETE! ",err)
@@ -764,7 +586,6 @@
                         return
                     }
                     console.log('total pages: ', this.totalPages)
-                    // this.where = {}
                     this.resetCursor()
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo

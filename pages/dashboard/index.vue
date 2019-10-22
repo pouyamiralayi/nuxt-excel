@@ -703,7 +703,7 @@
                                 targets = []
                                 continue
                             }
-                            console.log("Targets: ",targets)
+                            // console.log("Targets: ",targets)
                           // await this.$apollo.queries.targets.refetch()
                         }
                         catch (e) {
@@ -712,14 +712,15 @@
                         }
                       // await this.$apollo.queries.customersDelete.refetch()
                       for(var id of targets){
-                        console.log("ID ?", id.id)
+                        // console.log("ID ?", id.id)
                         // this.id = id
                         //   this.where_id = {'id':id}
                         // this.where['id'] = id
                           try{
                               if(id){
-                                const re = await strapi.deleteEntry('customers', id.id)
-                                console.log(re)
+                                // const re = await strapi.deleteEntry('customers', id.id)
+                                await strapi.deleteEntry('customers', id.id)
+                                // console.log(re)
                               }
                               else{
                                   continue
@@ -749,7 +750,10 @@
                     this.loading = true
                     const fdateFrom = moment(this.dateFrom, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateTo, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                    const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
+                    const response = await axios.get(apiUrl +
+                        `/customers/count?date_gte=${fdateFrom}
+                        &date_lt=${fdateTo}
+                        &customer_no=${this.customer_no}`)
                     if (response.data == null || response.data === undefined || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false
@@ -768,26 +772,49 @@
                     this.where['date_lt'] = fdateTo
                     this.where['customer_no'] = this.customer_no
                     console.log('where? ',this.where)
-                    this.search = true
+                    var targets = []
+                    console.log("Total Pages: ", this.totalPages)
                     for(var i = 0; i< this.totalPages; i++){
-                        this.movePageDelete(i)
-                        await this.$apollo.queries.customersDelete.refetch()
-                    }
-                    // this.search = false
-                    // for (const res of response.data) {
-                    //     if (res.id) {
-                    //         try {
-                    //             const re = await strapi.deleteEntry('customers', res.id)
-                    //             console.log(res)
-                    //         } catch (e) {
-                    //             console.log(e)
-                    //         }
-                    //     }
-                    // }
-                    // alert("حذف با موفقیت انجام شد")
-                    // this.loading = false
-                    // location.reload()
-                    // this.reload()
+                        try{
+                            const resp = await axios.get(apiUrl+
+                                `/customers?_start=${this.start}
+                                &date_gte=${this.where['date_gte']}
+                                &date_lt=${this.where['date_lt']}
+                                &customer_no=${this.where['customer_no']}`)
+                            if(resp.data){
+                                targets = resp.data
+                            }
+                            else{
+                                targets = []
+                                continue
+                            }
+                            // console.log("Targets: ",targets)
+                        }
+                        catch (e) {
+                            console.log("TARGETS! ", e.message)
+                            continue
+                        }
+                        for(var id of targets) {
+                            // console.log("ID ?", id.id)
+                            try{
+                                if(id){
+                                    // const re = await strapi.deleteEntry(
+                                     await strapi.deleteEntry(
+                                        'customers', id.id)
+                                    // console.log(re)
+                                }
+                                else{
+                                    continue
+                                }
+                            }
+                            catch (e) {
+                                console.log("DELETE! ",err)
+                                continue
+                            }
+                        }
+                      }
+                      alert("حذف با موفقیت انجام شد.")
+                      this.reload()
                 } catch (e) {
                     console.log(e)
                     this.loading = false

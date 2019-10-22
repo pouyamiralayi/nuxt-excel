@@ -238,6 +238,7 @@
                     if (!loading) {
                         this.targets = data.customers
                         console.log(this.targets)
+                        return
                     }
                 },
                 error (error) {
@@ -248,7 +249,7 @@
                 manual: true,
                 prefetch: false,
                 query: CustomersQueryParam,
-                fetchPolicy: 'no-cache',
+                // fetchPolicy: 'no-cache',
                 variables() {
                     return {
                         start: this.start,
@@ -391,14 +392,17 @@
                   variables:{
                       id:this.id
                   },
-                  // update: (store, { data: { addTag } }) => {
-                  //     // Read the data from our cache for this query.
-                  //     const data = store.readQuery({ query: TAGS_QUERY })
-                  //     // Add our tag from the mutation to the end
-                  //     data.tags.push(addTag)
-                  //     // Write our data back to the cache.
-                  //     store.writeQuery({ query: TAGS_QUERY, data })
-                  // },
+                  update: (store, { data: { customerId } }) => {
+                      console.log(customerId)
+                      // Read the data from our cache for this query.
+                      const customers = store.readQuery({ query: CustomersQueryParam })
+                      // console.log(customers)
+                      // data.customers
+                      // Add our tag from the mutation to the end
+                      // data.tags.push(addTag)
+                      // Write our data back to the cache.
+                      // store.writeQuery({ query: TAGS_QUERY, data })
+                  },
                   // optimisticResponse: {
                   //     __typename: 'Mutation',
                   //     addTag: {
@@ -695,10 +699,9 @@
                           try{
                             const data = await this.deleteCustomer()
                             console.log(data)
-
                           }
                           catch(err){
-                              // console.log("DELETE! ",err)
+                              console.log("DELETE! ",err)
                           }
                           // .then(data => {
                           //   // this.loading = false
@@ -713,6 +716,8 @@
                       }
                     }
                     this.search = false
+                    alert("ذف با موفقیت انجام شد.")
+                    this.reload()
                     // const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
                     // if (response.data == null || response.data === undefined) {
                     //     alert("داده ای یافت نشد")

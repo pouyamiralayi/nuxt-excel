@@ -185,10 +185,12 @@
 </template>
 
 <script>
+    import gql from 'graphql-tag'
     // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
     // import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
     import CustomersQueryParam from '@/apollo/queries/CustomersQueryParam.gql'
     import CustomersQueryDelete from '@/apollo/queries/CustomersQueryDelete.gql'
+    import CustomersQueryId from '@/apollo/queries/CustomersQueryId.gql'
     import AppLogo from '~/components/AppLogo.vue'
     import AddExcel from '~/components/AddExcel.vue'
     import EditExcel from '~/components/EditExcel.vue'
@@ -205,6 +207,43 @@
 
     export default {
         apollo: {
+            targets:{
+              manual:true,
+              prefetch:false,
+              query:CustomersQueryId,
+              fetchPolicy:'no-cache',
+              variables(){
+                  return {
+                      start: this.start,
+                      limit: this.limit,
+                      sort: 'id:asc',
+                      where:this.where
+                  }
+              },
+              skip() {
+                return !this.search
+              },
+                watchLoading(isLoading) {
+                    // console.log('isLoading: ',isLoading)
+                    // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
+                    // following is not working:
+                    // if (isLoading) {
+                    //     this.loading = true
+                    // } else {
+                    //     this.loading = false
+                    // }
+                },
+                update: data => data.customers,
+                result({data, loading, networkStatus}) {
+                    if (!loading) {
+                        this.targets = data.customers
+                        console.log(this.targets)
+                    }
+                },
+                error (error) {
+                    console.error('TARGETS! ', error)
+                },
+            },
             customers: {
                 manual: true,
                 prefetch: false,
@@ -234,58 +273,58 @@
                     }
                 },
                 error (error) {
-                    console.error('We\'ve got an error!', error)
+                    alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
+                    // console.error('We\'ve got an error!', error)
                 },
             },
-            customersDelete: {
-                manual: true,
-                prefetch: false,
-                query: CustomersQueryDelete,
-                fetchPolicy: 'no-cache',
-                variables() {
-                    return {
-                        start: this.start,
-                        limit: this.limit,
-                        sort: 'id:asc',
-                        where: this.where
-                    }
-                },
-                skip(){
-                  return !this.search
-                },
-                watchLoading(isLoading) {
-                    // console.log('isLoading: ',isLoading)
-                    // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
-                    // following is not working:
-                    if (isLoading) {
-                        this.loading = true
-                    } else {
-                        this.loading = false
-                    }
-                },
-                async result({data, loading, networkStatus}) {
-                    if (!loading) {
-                        this.loading = true
-                        for (const res of data.customers) {
-                            if (res.id) {
-                                try {
-                                    const re = await strapi.deleteEntry('customers', res.id)
-                                    console.log(res)
-                                } catch (e) {
-                                    console.log(e)
-                                }
-                            }
-                        }
-                        this.loading = false
-                        this.search = false
-                        this.reload()
-                        // this.customers = data.customers
-                    }
-                },
-                error (error) {
-                    console.error('We\'ve got an error!', error)
-                },
-            },
+            // customersDelete: {
+            //     manual: true,
+            //     prefetch: false,
+            //     query: CustomersQueryDelete,
+            //     fetchPolicy: 'no-cache',
+            //     variables() {
+            //         return {
+            //             start: this.start,
+            //             limit: this.limit,
+            //             sort: 'id:asc',
+            //             where: this.where
+            //         }
+            //     },
+            //     skip(){
+            //       return !this.search
+            //     },
+            //     watchLoading(isLoading) {
+            //         // console.log('isLoading: ',isLoading)
+            //         // => it would be great if the isLoading variable could be synchronized with the nuxt state change behaviour
+            //         // following is not working:
+            //         if (isLoading) {
+            //             this.loading = true
+            //         } else {
+            //             this.loading = false
+            //         }
+            //     },
+            //     async result({data, loading, networkStatus}) {
+            //         if (!loading) {
+            //             this.loading = true
+            //             for (const res of data.customers) {
+            //                 if (res.id) {
+            //                     try {
+            //                         const re = await strapi.deleteEntry('customers', res.id)
+            //                         console.log(res)
+            //                     } catch (e) {
+            //                         console.log(e)
+            //                     }
+            //                 }
+            //             }
+            //             this.search = false
+            //             this.reload()
+            //             // this.customers = data.customers
+            //         }
+            //     },
+            //     error (error) {
+            //         console.error('We\'ve got an error!', error)
+            //     },
+            // },
 
         },
         async created() {
@@ -298,6 +337,8 @@
         },
         data() {
             return {
+                where_id:{},
+                targets:[],
                 search:false,
                 customer_no_query:'',
                 customer_name_query:'',
@@ -333,6 +374,41 @@
             EditExcel,
         },
         methods: {
+            deleteCustomer(){
+                return this.$apollo.mutate({
+                  mutation: gql`
+                      mutation deleteCustomer($where:InputID) {
+                        deleteCustomer(input: {
+                          where:$where
+                        }) {
+                          customer {
+                            customer_name
+                          }
+                        }
+                    }
+
+                  `,
+                  variables:{
+                      id:this.id
+                  },
+                  // update: (store, { data: { addTag } }) => {
+                  //     // Read the data from our cache for this query.
+                  //     const data = store.readQuery({ query: TAGS_QUERY })
+                  //     // Add our tag from the mutation to the end
+                  //     data.tags.push(addTag)
+                  //     // Write our data back to the cache.
+                  //     store.writeQuery({ query: TAGS_QUERY, data })
+                  // },
+                  // optimisticResponse: {
+                  //     __typename: 'Mutation',
+                  //     addTag: {
+                  //         __typename: 'Tag',
+                  //         id: -1,
+                  //         label: newTag,
+                  //     },
+                  // },
+              })
+            },
             async reload(){
                 /*reset data*/
                 this.resetCursor()
@@ -605,12 +681,38 @@
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
                     console.log('where? ',this.where)
+                    // await this.deleteCustomer()
                     this.search = true
                     for(var i = 0; i< this.totalPages; i++){
                       this.movePageDelete(i)
-                      await this.$apollo.queries.customersDelete.refetch()
+                      await this.$apollo.queries.targets.refetch()
+                      // await this.$apollo.queries.customersDelete.refetch()
+                      for(var id of this.targets){
+                        // console.log("ID ?", id)
+                        // this.id = id
+                          this.where_id = {'id':id}
+                        // this.where['id'] = id
+                          try{
+                            const data = await this.deleteCustomer()
+                            console.log(data)
+
+                          }
+                          catch(err){
+                              // console.log("DELETE! ",err)
+                          }
+                          // .then(data => {
+                          //   // this.loading = false
+                          //   // this.search = false
+                          //   // this.reload()
+                          // })
+                          // .catch(error => {
+                          //     // this.loading = false
+                          //     // this.search = false
+                          //     // this.reload()
+                          // })
+                      }
                     }
-                    // this.search = false
+                    this.search = false
                     // const response = await axios.get(apiUrl + `/customers?_limit=0&_sort=id:asc,date:desc&date_gte=${fdateFrom}&date_lt=${fdateTo}`)
                     // if (response.data == null || response.data === undefined) {
                     //     alert("داده ای یافت نشد")

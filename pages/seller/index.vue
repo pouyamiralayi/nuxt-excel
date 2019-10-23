@@ -546,28 +546,29 @@
                             targets = []
                             continue
                         }
+                        await strapi.deleteEntry('sellers', targets)
                         // console.log("Targets: ",targets)
                     }
                     catch (e) {
-                        console.log("TARGETS! ", e.message)
+                        console.log("DELETE! ", e.message)
                         continue
                     }
-                    for(var id of targets){
-                        // console.log("ID ?", id.id)
-                        try{
-                            if(id){
-                                await strapi.deleteEntry('sellers', id.id)
-                                // console.log(re)
-                            }
-                            else{
-
-                            }
-                        }
-                        catch(err){
-                            console.log("DELETE! ",err)
-
-                        }
-                    }
+                    // for(var id of targets){
+                    //     // console.log("ID ?", id.id)
+                    //     try{
+                    //         if(id){
+                    //             await strapi.deleteEntry('sellers', id.id)
+                    //             // console.log(re)
+                    //         }
+                    //         else{
+                    //
+                    //         }
+                    //     }
+                    //     catch(err){
+                    //         console.log("DELETE! ",err)
+                    //
+                    //     }
+                    // }
                 }
                 alert("حذف با موفقیت انجام شد.")
                 this.reload()

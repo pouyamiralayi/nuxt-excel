@@ -495,31 +495,34 @@
                         try{
                             const resp = await axios.get(apiUrl+`/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
                             if(resp.data){
-                              targets = resp.data
+                              resp.data.forEach(c => targets.push(c.id))
+                              // targets = resp.data
                             }
                             else{
                                 targets = []
                                 continue
                             }
+                            await strapi.deleteEntry('customers', targets)
                             // console.log("Targets: ",targets)
                         }
                         catch (e) {
-                            console.log("TARGETS! ", e.message)
+                            console.log("DELETE! ", e.message)
                             continue
                         }
-                      for(var id of targets){
-                        // console.log("ID ?", id.id)
-                          try{
-                              if(id){
-                                // const re = await strapi.deleteEntry('customers', id.id)
-                                await strapi.deleteEntry('customers', id.id)
-                                // console.log(re)
-                              }
-                          }
-                          catch(err){
-                              console.log("DELETE! ",err)
-                          }
-                      }
+
+                        // for(var id of targets){
+                      //   // console.log("ID ?", id.id)
+                      //     try{
+                      //         if(id){
+                      //           // const re = await strapi.deleteEntry('customers', id.id)
+                      //           await strapi.deleteEntry('customers', id.id)
+                      //           // console.log(re)
+                      //         }
+                      //     }
+                      //     catch(err){
+                      //         console.log("DELETE! ",err)
+                      //     }
+                      // }
                     }
                     alert("حذف با موفقیت انجام شد.")
                     this.reload()

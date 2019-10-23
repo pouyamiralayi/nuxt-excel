@@ -84,6 +84,7 @@
             },
             logout() {
                 this.$store.commit('auth/logout')
+                // this.$apolloHelpers.onLogout()
                 this.$router.push('/')
             }
         },

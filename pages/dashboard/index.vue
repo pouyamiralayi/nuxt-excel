@@ -229,13 +229,17 @@
                     }
                 },
                 error (error) {
-                    alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
+                    // alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
                     console.error('We\'ve got an error!', error)
                 },
             },
         },
         async created() {
-           this.reload()
+            // console.log(this.$store.getters['auth/token'])
+            await this.$apolloHelpers.onLogin(`${this.$store.getters['auth/token']}`)
+            // await this.app.apolloProvider.defaultClient.fetchQueryRejectFns
+            // await this.app.apolloProvider.defaultClient.resetStore()
+            this.reload()
         },
         async mounted() {
         },
@@ -243,7 +247,6 @@
             return {
                 where_id:{},
                 targets:[],
-                search:false,
                 customer_no_query:'',
                 customer_name_query:'',
                 customer_description_query:'',
@@ -278,7 +281,6 @@
             async reload(){
                 /*reset data*/
                 this.resetCursor()
-                this.search = false
                 /*check login*/
                 if (!this.isLoggedIn) {
                     this.$router.push('/')

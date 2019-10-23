@@ -66,10 +66,12 @@
 
   // const apiUrl = process.env.API_URL || ''
   // const apiUrl = process.env.API_URL || 'http://localhost:1337'
-  const apiUrl = process.env.API_URL || 'http://10.30.205.75:1339'
+  const apiUrl = process.env.API_URL || 'http://10.30.205.75:1339/loginpanel'
   // console.log('apiUrl',apiUrl)
-  const strapi = new Strapi(apiUrl)
+  // const strapi = new Strapi(apiUrl)
   import { mapMutations } from 'vuex'
+  import axios from 'axios'
+
   export default {
       created(){
         console.log(process.env.API_URL)
@@ -105,8 +107,13 @@
       async handleSubmit() {
         try {
           this.loading = true
-          const response = await strapi.login(this.email, this.password)
-            console.log(response)
+            const res = await axios.post(apiUrl, {
+                  identifier:this.email,
+                  password:this.password
+            })
+            const response = res.data
+          // const response = await strapi.login(this.email, this.password)
+          //   console.log(response)
           // this.loading = false
           // this.$store.commit('auth/setUser', response.user)
           this.setUser({jwt:response.jwt, ...response.user})

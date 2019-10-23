@@ -224,12 +224,13 @@
                   }
               },
               error (error) {
-                  alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
+                  // alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
                   console.error('We\'ve got an error!', error)
               },
           },
       },
       async created(){
+          await this.$apolloHelpers.onLogin(`${this.$store.getters['auth/token']}`)
           this.reload()
       },
       async mounted(){
@@ -252,9 +253,9 @@
           dateTo:'',
           dateToG:'',
           sellers:[],
-        query: '',
-        queryCustomer: '',
-        eid: '',
+          query: '',
+          queryCustomer: '',
+          eid: '',
       }
     },
     components: {

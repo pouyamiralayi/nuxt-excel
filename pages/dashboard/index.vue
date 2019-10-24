@@ -72,6 +72,10 @@
           </div>
         </client-only>
 <!--        <b-button v-b-modal.modal-admin>change pass</b-button>-->
+        <b-modal id="modal-file" dir="ltr" title="مدیریت فایل ها" busy>
+          <file-manager></file-manager>
+          <div slot="modal-footer"></div>
+        </b-modal>
         <b-modal id="modal-new" dir="ltr" title="تعریف اکسل" busy>
           <add-excel></add-excel>
           <div slot="modal-footer"></div>
@@ -122,6 +126,7 @@
             <div class="form-group mt-3 text-center">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
               &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
+              <b-button variant="info" class="mt-1" v-b-modal.modal-file dir="rtl">مدیریت فایل ها</b-button>
             </div>
           </div>
         </b-row>
@@ -157,8 +162,7 @@
               </div>
               <div class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ customer.record_no || 'ثبتنشده است' }}
               </div>
-              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{customer.date |
-                moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}
+              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{customer.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}
               </div>
               <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ customer.description || 'شرحی ثبت نشدهاست' }}</p>
               <p class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{ customer.owed || '0' }}</p>
@@ -188,6 +192,7 @@
     import gql from 'graphql-tag'
     // import VuePersianDatetimePicker from 'vue-persian-datetime-picker'
     // import CustomersQuery from '@/apollo/queries/CustomersQuery.gql'
+    import FileManager from '@/components/FileManager.vue'
     import CustomersQueryParam from '@/apollo/queries/CustomersQueryParam.gql'
     import CustomersQueryDelete from '@/apollo/queries/CustomersQueryDelete.gql'
     import CustomersQueryId from '@/apollo/queries/CustomersQueryId.gql'
@@ -271,6 +276,7 @@
         },
         components: {
             datePicker: () => import('vue-persian-datetime-picker'),
+            FileManager,
             Header,
             AppLogo,
             AddExcel,

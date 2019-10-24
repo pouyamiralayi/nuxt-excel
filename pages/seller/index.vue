@@ -87,7 +87,7 @@
         <b-row aling-h="start">
           <div class="col-md-3">
             <div class="form-group mt-3">
-              <input v-model="seller_no_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی کد مشتری...">
+              <input v-model="seller_no_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی کد فروشنده...">
             </div>
             <div class="form-group">
               <b-button @click="searchSellerNo">جستجو</b-button>
@@ -95,7 +95,7 @@
           </div>
           <div class="col-md-3">
             <div class="form-group mt-3">
-              <input v-model="seller_name_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی نام مشتری...">
+              <input v-model="seller_name_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی نام فروشنده...">
             </div>
             <div class="form-group">
               <b-button @click="searchSellerName">جستجو</b-button>

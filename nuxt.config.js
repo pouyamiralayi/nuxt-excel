@@ -16,6 +16,9 @@ export default {
       {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
     ]
   },
+  env: {
+    apiUrl: 'http://localhost:1337'
+  },
   /*
   ** Customize the progress-bar color
   */

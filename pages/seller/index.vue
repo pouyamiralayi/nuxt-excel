@@ -64,6 +64,10 @@
             </div>
           </div>
         </client-only>
+        <b-modal id="modal-file" dir="ltr" title="مدیریت فایل ها" busy>
+          <file-manager></file-manager>
+          <div slot="modal-footer"></div>
+        </b-modal>
         <b-modal id="modal-new" dir="ltr" title="تعریف اکسل" busy>
           <add-excel></add-excel>
           <div slot="modal-footer"></div>
@@ -113,6 +117,7 @@
             <div class="form-group mt-3 text-center">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
               &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
+              <b-button variant="warning" class="mt-3" v-b-modal.modal-file dir="rtl">مدیریت فایل ها</b-button>
             </div>
           </div>
         </b-row>
@@ -191,6 +196,7 @@
   import AddCustomer from '~/components/AddCustomer.vue'
   import Strapi from 'strapi-sdk-javascript/build/main'
   import {mapGetters} from 'vuex'
+    import FileManager from '@/components/FileManager.vue'
 
   import SellersQueryParam from '@/apollo/queries/SellersQueryParam.gql'
 
@@ -260,6 +266,7 @@
     },
     components: {
         datePicker: () => import('vue-persian-datetime-picker'),
+        'file-manager':FileManager,
         AppLogo,
         AddExcel,
         AddCustomer,
@@ -272,6 +279,7 @@
             this.currentPage = 1
         },
         async reload(){
+            this.loading = true
             this.resetCursor()
             if (!this.isLoggedIn) {
                 this.$router.push('/')
@@ -283,13 +291,16 @@
                 this.totalPages = Math.ceil(resp.data / 100)
                 if (!this.totalPages) {
                     alert("داده ای یافت نشد.")
+                    this.loading = false
                     return
                 }
                 console.log('total pages: ', this.totalPages)
             } else {
                 alert("داده ای یافت نشد.")
+                this.loading = false
                 return
             }
+            this.loading = false
             await this.$apollo.queries.sellers.refetch()
         },
         async searchSellerNo(){
@@ -469,39 +480,45 @@
                 this.where['date_lt'] = fdateTo
                 this.where['seller_no'] = this.seller_no
                 console.log('where? ',this.where)
-                var targets = []
                 console.log("Total Pages: ", this.totalPages)
+                var targets = []
                 for(var i = 0; i< this.totalPages; i++){
                     try{
                         const resp = await axios.get(apiUrl+
                             `/sellers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}&seller_no=${this.where['seller_no']}`)
                         if(resp.data){
-                            targets = resp.data
+                            resp.data.forEach(c => targets.push(c.id))
                         }
                         else{
                             targets = []
                             continue
                         }
-                        // console.log("Targets: ",targets)
+                        console.log("Targets: ",targets)
                     }
                     catch (e) {
                         console.log("TARGETS! ", e.message)
                         continue
                     }
-                    for(var id of targets) {
-                        // console.log("ID ?", id.id)
-                        try{
-                            if(id){
-                                // const re = await strapi.deleteEntry(
-                                await strapi.deleteEntry(
-                                    'sellers', id.id)
-                                // console.log(re)
-                            }
+                    try{
+                        if(targets){
+                            const re = await axios({
+                                url:apiUrl+'/sellers/destroy',
+                                method:'post',
+                                data:{
+                                    id:targets
+                                },
+                                // config: { headers: {'Content-Type': 'application/x-www-form-urlencoded' }}
+                            })
+                            console.log(re)
+                            // const re = await strapi.deleteEntry(
+                            // const re = await strapi.deleteEntry(
+                            //     'sellers',targets)
                         }
-                        catch (err) {
-                            console.log("DELETE! ",err)
-                        }
+                    } catch (err) {
+                        console.log("DELETE! ",err)
+                        continue
                     }
+                    targets = []
                 }
               alert("حذف با موفقیت انجام شد")
               this.reload()
@@ -540,19 +557,39 @@
                     try{
                         const resp = await axios.get(apiUrl+`/sellers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
                         if(resp.data){
-                            targets = resp.data
+                            resp.data.forEach(c => targets.push(c.id))
                         }
                         else{
                             targets = []
                             continue
                         }
-                        await strapi.deleteEntry('sellers', targets)
+                        // await strapi.deleteEntry('sellers', targets)
                         // console.log("Targets: ",targets)
                     }
                     catch (e) {
                         console.log("DELETE! ", e.message)
                         continue
                     }
+                    try{
+                        if(targets){
+                            const re = await axios({
+                                url:apiUrl+'/sellers/destroy',
+                                method:'post',
+                                data:{
+                                    id:targets
+                                },
+                                // config: { headers: {'Content-Type': 'application/x-www-form-urlencoded' }}
+                            })
+                            console.log(re)
+                            // const re = await strapi.deleteEntry(
+                            // const re = await strapi.deleteEntry(
+                            //     'sellers',targets)
+                        }
+                    } catch (err) {
+                        console.log("DELETE! ",err)
+                        continue
+                    }
+                    targets = []
                     // for(var id of targets){
                     //     // console.log("ID ?", id.id)
                     //     try{

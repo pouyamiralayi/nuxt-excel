@@ -1,0 +1,9 @@
+mutation deleteCustomer($where: JSON) {
+  deleteCustomer(input: {
+    where:$where
+  }) {
+    customer {
+      id
+    }
+  }
+}

@@ -1,0 +1,5 @@
+query($start: Int, $limit: Int, $sort: String, $where:JSON) {
+  customers(start:$start, limit:$limit, sort:$sort, where:$where){
+    id
+  }
+}

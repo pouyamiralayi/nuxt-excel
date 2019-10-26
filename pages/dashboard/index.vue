@@ -10,9 +10,9 @@
         <!--          {{this.$apollo.queries.customers.loading ? "Loading" : "Done"}}-->
         <!--        </p>-->
         <br>
-<!--        <p class="text-right w-100">-->
-<!--          <span>تعداد آیتم ها:</span>&nbsp;&nbsp;{{customers && customers.length || 0}}-->
-<!--        </p>-->
+        <!--        <p class="text-right w-100">-->
+        <!--          <span>تعداد آیتم ها:</span>&nbsp;&nbsp;{{customers && customers.length || 0}}-->
+        <!--        </p>-->
         <!--<b-row>-->
         <!--<b-col cols="12" class="text-center">-->
         <!--<app-logo/>-->
@@ -29,8 +29,8 @@
         <client-only>
           <div style="display: flex; justify-content: flex-start">
             <div class="form-group mt-3">
-<!--              <input v-model="customer_no" type="text" class="form-control pt-2 pb-2 mt-2"-->
-<!--                     placeholder="کد مشتری را وارد نمایید...">-->
+              <!--              <input v-model="customer_no" type="text" class="form-control pt-2 pb-2 mt-2"-->
+              <!--                     placeholder="کد مشتری را وارد نمایید...">-->
             </div>
             <div class="text-right">
               <span>از تاریخ:</span><br>
@@ -71,7 +71,7 @@
             </div>
           </div>
         </client-only>
-<!--        <b-button v-b-modal.modal-admin>change pass</b-button>-->
+        <!--        <b-button v-b-modal.modal-admin>change pass</b-button>-->
         <b-modal id="modal-file" dir="ltr" title="مدیریت فایل ها" busy>
           <file-manager></file-manager>
           <div slot="modal-footer"></div>
@@ -80,15 +80,15 @@
           <add-excel></add-excel>
           <div slot="modal-footer"></div>
         </b-modal>
-        <b-modal id="modal-new-customer" dir="rtl" title="تعریف مشتری">
+        <b-modal id="modal-new-customer" dir="ltr" title="تعریف مشتری">
           <add-customer></add-customer>
           <div slot="modal-footer"></div>
         </b-modal>
-        <b-modal id="modal-edit-excel" dir="rtl" title="ویرایش فایل">
+        <b-modal id="modal-edit-excel" dir="ltr" title="ویرایش فایل">
           <edit-excel :eid="eid"></edit-excel>
           <div slot="modal-footer"></div>
         </b-modal>
-        <b-modal id="modal-remove-excel" dir="rtl" title="حذف فایل" busy>
+        <b-modal id="modal-remove-excel" dir="ltr" title="حذف فایل" busy>
           <p class="my-4 subtitle-mini" style="text-align: center"><span>😔</span>آیا از حذف اطمینان دارید؟</p>
           <b-form @submit.stop.prevent="removeExcel" class="text-center">
             <b-button type="submit">تایید</b-button>
@@ -100,7 +100,8 @@
         <b-row aling-h="start">
           <div class="col-md-3">
             <div class="form-group mt-3">
-              <input v-model="customer_no_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی کد مشتری...">
+              <input v-model="customer_no_query" type="text" class="form-control pt-4 pb-4"
+                     placeholder="جستجوی کد مشتری...">
             </div>
             <div class="form-group">
               <b-button @click="searchCustomerNo">جستجو</b-button>
@@ -108,7 +109,8 @@
           </div>
           <div class="col-md-3">
             <div class="form-group mt-3">
-              <input v-model="customer_name_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی نام مشتری...">
+              <input v-model="customer_name_query" type="text" class="form-control pt-4 pb-4"
+                     placeholder="جستجوی نام مشتری...">
             </div>
             <div class="form-group">
               <b-button @click="searchCustomerName">جستجو</b-button>
@@ -116,7 +118,8 @@
           </div>
           <div class="col-md-3">
             <div class="form-group mt-3">
-              <input v-model="customer_description_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی شرح...">
+              <input v-model="customer_description_query" type="text" class="form-control pt-4 pb-4"
+                     placeholder="جستجوی شرح...">
             </div>
             <div class="form-group">
               <b-button @click="searchCustomerDesc">جستجو</b-button>
@@ -137,7 +140,8 @@
           <b-button
             :disabled="currentPage === 1"
             @click="movePage(1)"
-          >ابتدا</b-button>&nbsp;&nbsp;&nbsp;
+          >ابتدا
+          </b-button>&nbsp;&nbsp;&nbsp;
           <b-button
             v-for="page in pages"
             :key="page.name"
@@ -146,7 +150,8 @@
           >{{page.name}}
           </b-button>
           &nbsp;&nbsp;&nbsp;<b-button
-          @click="movePage(totalPages)" :disabled="currentPage === totalPages">انتها</b-button>&nbsp;&nbsp;&nbsp;
+          @click="movePage(totalPages)" :disabled="currentPage === totalPages">انتها
+        </b-button>&nbsp;&nbsp;&nbsp;
         </b-row>
         <b-row align-h="start" class="container-fluid">
           <b-card
@@ -158,15 +163,20 @@
             <div class="card-body">
               <h5 class="card-title subtitle-mini"><span class="ml-1">📝</span>{{ customer.customer_name || 'بدون نام'}}
               </h5>
-              <div class="card-text subtitle-mini"><p class="label">کد مشتری:</p>&nbsp;{{ customer.customer_no || 'کدمشتری ثبت نشده است' }}
+              <div class="card-text subtitle-mini"><p class="label">کد مشتری:</p>&nbsp;{{ customer.customer_no ||
+                'کدمشتری ثبت نشده است' }}
               </div>
-              <div class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ customer.record_no || 'ثبتنشده است' }}
+              <div class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ customer.record_no ||
+                'ثبتنشده است' }}
               </div>
-              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{customer.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}
+              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{customer.date |
+                moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}
               </div>
-              <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ customer.description || 'شرحی ثبت نشدهاست' }}</p>
-              <p class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{ customer.owed || '0' }}</p>
-              <p class="card-text subtitle-mini" style="color: #41b883"><span class="label">بستانکار:</span>&nbsp;{{ customer.owned || '0' }}</p>
+              <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ customer.description || 'شرحی ثبتنشدهاست' }}</p>
+              <p class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{
+                customer.owed || '0' }}</p>
+              <p class="card-text subtitle-mini" style="color: #41b883"><span class="label">بستانکار:</span>&nbsp;{{
+                customer.owned || '0' }}</p>
               <!--              <p class="subtitle-mini">مشتری ثبت نشده است</p>-->
               <!--              <b-badge class="subtitle-icon" style="padding:8px;background-color:white;cursor: pointer;"-->
               <!--                       @click="editFile(excel.id)" pill>🖊️-->
@@ -233,7 +243,7 @@
                         this.customers = data.customers
                     }
                 },
-                error (error) {
+                error(error) {
                     // alert("خطا! لطفاً صفحه را مجدد بارگذاری نمایید.")
                     console.error('We\'ve got an error!', error)
                 },
@@ -250,17 +260,17 @@
         },
         data() {
             return {
-                where_id:{},
-                targets:[],
-                customer_no_query:'',
-                customer_name_query:'',
-                customer_description_query:'',
+                where_id: {},
+                targets: [],
+                customer_no_query: '',
+                customer_name_query: '',
+                customer_description_query: '',
                 maxVisibleButtons: 3,
                 currentPage: 1,
                 totalPages: null,
                 start: 0,
                 limit: 100,
-                where:{},
+                where: {},
                 loading: false,
                 customer_no: '',
                 dateFromG: '',
@@ -276,7 +286,7 @@
         },
         components: {
             datePicker: () => import('vue-persian-datetime-picker'),
-            FileManager,
+            'file-manager':FileManager,
             Header,
             AppLogo,
             AddExcel,
@@ -284,7 +294,8 @@
             EditExcel,
         },
         methods: {
-            async reload(){
+            async reload() {
+                this.loading = true
                 /*reset data*/
                 this.resetCursor()
                 /*check login*/
@@ -301,20 +312,23 @@
                     this.totalPages = Math.ceil(resp.data / 100)
                     if (!this.totalPages) {
                         alert("داده ای یافت نشد.")
+                        this.loading = false
                         return
                     }
                     console.log('total pages: ', this.totalPages)
                 } else {
                     alert("داده ای یافت نشد.")
+                    this.loading = false
                     // this.$router.push('/')
                     return
                 }
+                this.loading = false
                 /*fetch :)*/
                 await this.$apollo.queries.customers.refetch()
-              // location.reload()
+                // location.reload()
             },
-            async searchCustomerNo(){
-                if(!this.customer_no_query){
+            async searchCustomerNo() {
+                if (!this.customer_no_query) {
                     alert("کد مشتری را وارد نمایید!")
                     return
                 }
@@ -323,7 +337,7 @@
                     return
                 }
                 this.loading = true
-                const resp = await axios.get(apiUrl + '/customers/count?customer_no_contains='+this.customer_no_query)
+                const resp = await axios.get(apiUrl + '/customers/count?customer_no_contains=' + this.customer_no_query)
                 if (resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
@@ -340,11 +354,11 @@
                 }
                 this.resetCursor()
                 this.where['customer_no_contains'] = this.customer_no_query
-                console.log('where? ',this.where)
+                console.log('where? ', this.where)
                 await this.$apollo.queries.customers.refetch()
             },
-            async searchCustomerName(){
-                if(!this.customer_name_query){
+            async searchCustomerName() {
+                if (!this.customer_name_query) {
                     alert("نام مشتری را وارد نمایید!")
                     return
                 }
@@ -353,7 +367,7 @@
                     return
                 }
                 this.loading = true
-                const resp = await axios.get(apiUrl + '/customers/count?customer_name_contains='+this.customer_name_query)
+                const resp = await axios.get(apiUrl + '/customers/count?customer_name_contains=' + this.customer_name_query)
                 if (resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
@@ -370,11 +384,11 @@
                 }
                 this.resetCursor()
                 this.where['customer_name_contains'] = this.customer_name_query
-                console.log('where? ',this.where)
+                console.log('where? ', this.where)
                 await this.$apollo.queries.customers.refetch()
             },
-            async searchCustomerDesc(){
-                if(!this.customer_description_query){
+            async searchCustomerDesc() {
+                if (!this.customer_description_query) {
                     alert("شرح را وارد نمایید!")
                     return
                 }
@@ -383,7 +397,7 @@
                     return
                 }
                 this.loading = true
-                const resp = await axios.get(apiUrl + '/customers/count?description_contains='+this.customer_description_query)
+                const resp = await axios.get(apiUrl + '/customers/count?description_contains=' + this.customer_description_query)
                 if (resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
@@ -400,19 +414,19 @@
                 }
                 this.resetCursor()
                 this.where['description_contains'] = this.customer_description_query
-                console.log('where? ',this.where)
+                console.log('where? ', this.where)
                 await this.$apollo.queries.customers.refetch()
             },
             async movePage(i) {
-                if(i<=0){
+                if (i <= 0) {
                     return
                 }
                 this.currentPage = i
                 this.start = (i - 1) * this.limit
-                console.log('where? ',this.where)
+                console.log('where? ', this.where)
                 await this.$apollo.queries.customers.refetch()
             },
-            async searchRange(){
+            async searchRange() {
                 if (!this.customer_no) {
                     alert("شمارۀ مشتری را مشخص نمایید")
                     return
@@ -438,14 +452,14 @@
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
                     this.where['customer_no'] = this.customer_no
-                    console.log('where? ',this.where)
+                    console.log('where? ', this.where)
                     await this.$apollo.queries.customers.refetch()
                 } catch (e) {
                     console.log(e)
                     this.loading = false
                 }
             },
-            async searchRangeGlobal(){
+            async searchRangeGlobal() {
                 try {
                     this.loading = true
                     const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
@@ -466,7 +480,7 @@
                     this.resetCursor()
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
-                    console.log('where? ',this.where)
+                    console.log('where? ', this.where)
                     await this.$apollo.queries.customers.refetch()
                 } catch (e) {
                     console.log(e)
@@ -494,41 +508,58 @@
                     this.resetCursor()
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
-                    console.log('where? ',this.where)
+                    console.log('where? ', this.where)
                     var targets = []
                     console.log("Total Pages: ", this.totalPages)
-                    for(var i = 1; i <= this.totalPages; i++){
-                        try{
-                            const resp = await axios.get(apiUrl+`/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
-                            if(resp.data){
-                              resp.data.forEach(c => targets.push(c.id))
-                              // targets = resp.data
-                            }
-                            else{
+                    for (var i = 1; i <= this.totalPages; i++) {
+                        try {
+                            const resp = await axios.get(apiUrl + `/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}`)
+                            if (resp.data) {
+                                resp.data.forEach(c => targets.push(c.id))
+                                // targets = resp.data
+                            } else {
                                 targets = []
                                 continue
                             }
-                            await strapi.deleteEntry('customers', targets)
+                            // await strapi.deleteEntry('customers', targets)
                             // console.log("Targets: ",targets)
-                        }
-                        catch (e) {
+                        } catch (e) {
                             console.log("DELETE! ", e.message)
                             continue
                         }
-
+                        try{
+                            if(targets){
+                                const re = await axios({
+                                    url:apiUrl+'/customers/destroy',
+                                    method:'post',
+                                    data:{
+                                        id:targets
+                                    },
+                                    // config: { headers: {'Content-Type': 'application/x-www-form-urlencoded' }}
+                                })
+                                console.log(re)
+                                // const re = await strapi.deleteEntry(
+                                // const re = await strapi.deleteEntry(
+                                //     'sellers',targets)
+                            }
+                        } catch (err) {
+                            console.log("DELETE! ",err)
+                            continue
+                        }
+                        targets = []
                         // for(var id of targets){
-                      //   // console.log("ID ?", id.id)
-                      //     try{
-                      //         if(id){
-                      //           // const re = await strapi.deleteEntry('customers', id.id)
-                      //           await strapi.deleteEntry('customers', id.id)
-                      //           // console.log(re)
-                      //         }
-                      //     }
-                      //     catch(err){
-                      //         console.log("DELETE! ",err)
-                      //     }
-                      // }
+                        //   // console.log("ID ?", id.id)
+                        //     try{
+                        //         if(id){
+                        //           // const re = await strapi.deleteEntry('customers', id.id)
+                        //           await strapi.deleteEntry('customers', id.id)
+                        //           // console.log(re)
+                        //         }
+                        //     }
+                        //     catch(err){
+                        //         console.log("DELETE! ",err)
+                        //     }
+                        // }
                     }
                     alert("حذف با موفقیت انجام شد.")
                     this.reload()
@@ -565,46 +596,47 @@
                     this.where['date_gte'] = fdateFrom
                     this.where['date_lt'] = fdateTo
                     this.where['customer_no'] = this.customer_no
-                    console.log('where? ',this.where)
+                    console.log('where? ', this.where)
                     var targets = []
                     console.log("Total Pages: ", this.totalPages)
-                    for(var i = 0; i< this.totalPages; i++){
-                        try{
-                            const resp = await axios.get(apiUrl+`/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}&customer_no=${this.where['customer_no']}`)
-                            if(resp.data){
-                                targets = resp.data
-                            }
-                            else{
+                    for (var i = 0; i < this.totalPages; i++) {
+                        try {
+                            const resp = await axios.get(apiUrl + `/customers?_start=${this.start}&date_gte=${this.where['date_gte']}&date_lt=${this.where['date_lt']}&customer_no=${this.where['customer_no']}`)
+                            if (resp.data) {
+                                resp.data.forEach(c => targets.push(c.id))
+                            } else {
                                 targets = []
                                 continue
                             }
                             // console.log("Targets: ",targets)
-                        }
-                        catch (e) {
+                        } catch (e) {
                             console.log("TARGETS! ", e.message)
                             continue
                         }
-                        for(var id of targets) {
-                            // console.log("ID ?", id.id)
-                            try{
-                                if(id){
-                                    // const re = await strapi.deleteEntry(
-                                     await strapi.deleteEntry(
-                                        'customers', id.id)
-                                    // console.log(re)
-                                }
-                                else{
-
-                                }
+                        try {
+                            if (targets) {
+                                const res = await axios({
+                                    url:apiUrl+'/customers/destroy',
+                                    method:'post',
+                                    data:{
+                                        id:targets
+                                    },
+                                    // config: { headers: {'Content-Type': 'application/x-www-form-urlencoded' }}
+                                })
+                                console.log(res)
+                                // const re = await strapi.deleteEntry(
+                                // await strapi.deleteEntry(
+                                //     'customers', targets)
+                                // console.log(re)
                             }
-                            catch (e) {
-                                console.log("DELETE! ",err)
-
-                            }
+                        } catch (e) {
+                            console.log("DELETE! ", e)
+                            continue
                         }
-                      }
-                      alert("حذف با موفقیت انجام شد.")
-                      this.reload()
+                        targets = []
+                    }
+                    alert("حذف با موفقیت انجام شد.")
+                    this.reload()
                 } catch (e) {
                     console.log(e)
                     this.loading = false
@@ -635,7 +667,7 @@
         },
         computed: {
             startPage() {
-                console.log('currentPage: ',this.currentPage)
+                console.log('currentPage: ', this.currentPage)
                 // When on the first page
                 if (this.currentPage === 1) {
                     return 1;
@@ -655,8 +687,8 @@
                 // console.log('endPage: ', this.endPage)
                 // console.log('totalPage: ', this.totalPages)
                 for (let i = this.startPage;
-                     i <= this.endPage; i+=1) {
-                    if(i<=0){
+                     i <= this.endPage; i += 1) {
+                    if (i <= 0) {
                         continue
                     }
                     range.push({

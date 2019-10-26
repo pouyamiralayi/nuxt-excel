@@ -211,6 +211,7 @@
               manual:true,
               prefetch:false,
               query: SellersQueryParam,
+              fetchPolicy: 'no-cache',
               variables(){
                   return {
                       start: this.start,
@@ -238,6 +239,11 @@
       async created(){
           await this.$apolloHelpers.onLogin(`${this.$store.getters['auth/token']}`)
           this.reload()
+      },
+      async beforeDestroy(){
+          const client = this.$apolloProvider.defaultClient
+          await client.queryManager.fetchQueryRejectFns;
+          await client.clearStore()
       },
       async mounted(){
       },
@@ -280,6 +286,9 @@
         },
         async reload(){
             this.loading = true
+            const client = this.$apolloProvider.defaultClient
+            await client.queryManager.fetchQueryRejectFns;
+            await client.clearStore()
             this.resetCursor()
             if (!this.isLoggedIn) {
                 this.$router.push('/')

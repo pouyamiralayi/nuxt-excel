@@ -256,6 +256,11 @@
             // await this.app.apolloProvider.defaultClient.resetStore()
             this.reload()
         },
+        async beforeDestroy(){
+            const client = this.$apolloProvider.defaultClient
+            await client.queryManager.fetchQueryRejectFns;
+            await client.clearStore()
+        },
         async mounted() {
         },
         data() {
@@ -296,6 +301,9 @@
         methods: {
             async reload() {
                 this.loading = true
+                const client = this.$apolloProvider.defaultClient
+                await client.queryManager.fetchQueryRejectFns;
+                await client.clearStore()
                 /*reset data*/
                 this.resetCursor()
                 /*check login*/

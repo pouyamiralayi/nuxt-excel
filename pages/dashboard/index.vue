@@ -125,13 +125,17 @@
               <b-button @click="searchCustomerDesc">جستجو</b-button>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="form-group mt-3 text-center">
+          <b-col align-h="start">
+            <b-col class="">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
+            </b-col>
+            <b-col class="">
               &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
-              <b-button variant="warning" class="mt-3" v-b-modal.modal-file dir="rtl">مدیریت فایل ها</b-button>
-            </div>
-          </div>
+            </b-col>
+            <b-col class="">
+              <b-button variant="warning" class="mt-1" v-b-modal.modal-file dir="rtl">مدیریت فایل</b-button>
+            </b-col>
+          </b-col>
         </b-row>
         <hr>
         <br>

@@ -44,11 +44,11 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <div class="form-group mt-4">
               <b-button type="submit" variant="success" @click="searchRangeGlobal">جستجو</b-button>&nbsp;&nbsp;&nbsp;
-              <b-button type="submit" variant="danger" @click="removeRangeGlobal">حذف</b-button>
+              <b-button type="submit" variant="danger" @click="removeRangeGlobal" v-if="!is_android">حذف</b-button>
             </div>
           </div>
         </client-only>
-        <client-only>
+        <client-only v-if="!is_android">
           <div style="display: flex; justify-content: flex-start">
             <div class="form-group mt-3">
               <input v-model="customer_no" type="text" class="form-control pt-2 pb-2 mt-2"
@@ -98,7 +98,7 @@
         </b-modal>
 
         <b-row aling-h="start">
-          <div class="col-md-3">
+          <div class="col-md-3" v-if="!is_android">
             <div class="form-group mt-3">
               <input v-model="customer_no_query" type="text" class="form-control pt-4 pb-4"
                      placeholder="جستجوی کد مشتری...">
@@ -107,7 +107,7 @@
               <b-button @click="searchCustomerNo">جستجو</b-button>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-3" v-if="!is_android">
             <div class="form-group mt-3">
               <input v-model="customer_name_query" type="text" class="form-control pt-4 pb-4"
                      placeholder="جستجوی نام مشتری...">
@@ -125,7 +125,7 @@
               <b-button @click="searchCustomerDesc">جستجو</b-button>
             </div>
           </div>
-          <b-col align-h="start">
+          <b-col align-h="start" v-if="!is_android">
             <b-col class="">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
             </b-col>
@@ -165,22 +165,16 @@
             class="card"
           >
             <div class="card-body">
-              <h5 class="card-title subtitle-mini"><span class="ml-1">📝</span>{{ customer.customer_name || 'بدون نام'}}
-              </h5>
-              <div class="card-text subtitle-mini"><p class="label">کد مشتری:</p>&nbsp;{{ customer.customer_no ||
-                'کدمشتری ثبت نشده است' }}
+              <h5 class="card-title subtitle-mini"><span class="ml-1">📝</span>{{ customer.customer_name || 'بدون نام'}}</h5>
+              <div class="card-text subtitle-mini"><p class="label">کد مشتری:</p>&nbsp;{{ customer.customer_no || 'کدمشتری ثبت نشده است' }}
               </div>
-              <div class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ customer.record_no ||
-                'ثبتنشده است' }}
+              <div class="card-text subtitle-mini"><p class="label">کد صورتحساب:</p>&nbsp;{{ customer.record_no || 'ثبتنشده است' }}
               </div>
-              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{customer.date |
-                moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}
+              <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{customer.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}
               </div>
-              <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ customer.description || 'شرحی ثبتنشدهاست' }}</p>
-              <p class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{
-                customer.owed || '0' }}</p>
-              <p class="card-text subtitle-mini" style="color: #41b883"><span class="label">بستانکار:</span>&nbsp;{{
-                customer.owned || '0' }}</p>
+              <p class="card-text subtitle-mini" style="color: cornflowerblue">{{ customer.description || 'شرحیثبتنشدهاست' }}</p>
+              <p class="card-text subtitle-mini" style="color: orangered"><span class="label">بدهکار:</span>&nbsp;{{ customer.owed || '0' }}</p>
+              <p class="card-text subtitle-mini" style="color: #41b883"><span class="label">بستانکار:</span>&nbsp;{{ customer.owned || '0' }}</p>
               <!--              <p class="subtitle-mini">مشتری ثبت نشده است</p>-->
               <!--              <b-badge class="subtitle-icon" style="padding:8px;background-color:white;cursor: pointer;"-->
               <!--                       @click="editFile(excel.id)" pill>🖊️-->
@@ -254,13 +248,29 @@
             },
         },
         async created() {
+            //"Authenticated"
+            //"android"
+            const role = this.$store.getters['auth/role']
+            if (role) {
+                if (role === 'authenticated') {
+                    this.is_android = false
+                    console.log(role)
+                } else if (role === 'android') {
+                    this.is_android = true
+                    this.customer_no = this.$store.getters['auth/username']
+                    console.log(role)
+                } else {
+                    this.$router.push('/')
+                    return
+                }
+            }
             // console.log(this.$store.getters['auth/token'])
             await this.$apolloHelpers.onLogin(`${this.$store.getters['auth/token']}`)
             // await this.app.apolloProvider.defaultClient.fetchQueryRejectFns
             // await this.app.apolloProvider.defaultClient.resetStore()
             this.reload()
         },
-        async beforeDestroy(){
+        async beforeDestroy() {
             const client = this.$apolloProvider.defaultClient
             await client.queryManager.fetchQueryRejectFns;
             await client.clearStore()
@@ -269,6 +279,7 @@
         },
         data() {
             return {
+                is_android: false,
                 where_id: {},
                 targets: [],
                 customer_no_query: '',
@@ -295,7 +306,7 @@
         },
         components: {
             datePicker: () => import('vue-persian-datetime-picker'),
-            'file-manager':FileManager,
+            'file-manager': FileManager,
             Header,
             AppLogo,
             AddExcel,
@@ -318,8 +329,13 @@
                 /*set auth headers*/
                 axios.defaults.headers.common.Authorization = 'Bearer ' + this.$store.getters['auth/token'];
                 /*calculates totalPages*/
-                const resp = await axios.get(apiUrl + '/customers/count')
-                if (resp.data) {
+                let resp = null
+                if (!this.is_android) {
+                    resp = await axios.get(apiUrl + '/customers/count')
+                } else {
+                    resp = await axios.get(apiUrl + '/customers/count?customer_no='+this.customer_no)
+                }
+                if (resp && resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
                     if (!this.totalPages) {
@@ -409,8 +425,14 @@
                     return
                 }
                 this.loading = true
-                const resp = await axios.get(apiUrl + '/customers/count?description_contains=' + this.customer_description_query)
-                if (resp.data) {
+                let resp = null
+                if(!this.is_android){
+                  resp = await axios.get(apiUrl + '/customers/count?description_contains=' + this.customer_description_query)
+                }
+                else {
+                  resp = await axios.get(apiUrl + '/customers/count?description_contains=' + this.customer_description_query+'&customer_no='+this.customer_no)
+                }
+                if (resp && resp.data) {
                     // console.log(resp.data)
                     this.totalPages = Math.ceil(resp.data / 100)
                     if (!this.totalPages) {
@@ -539,13 +561,13 @@
                             console.log("DELETE! ", e.message)
                             continue
                         }
-                        try{
-                            if(targets){
+                        try {
+                            if (targets) {
                                 const re = await axios({
-                                    url:apiUrl+'/customers/destroy',
-                                    method:'post',
-                                    data:{
-                                        id:targets
+                                    url: apiUrl + '/customers/destroy',
+                                    method: 'post',
+                                    data: {
+                                        id: targets
                                     },
                                     // config: { headers: {'Content-Type': 'application/x-www-form-urlencoded' }}
                                 })
@@ -555,7 +577,7 @@
                                 //     'sellers',targets)
                             }
                         } catch (err) {
-                            console.log("DELETE! ",err)
+                            console.log("DELETE! ", err)
                             continue
                         }
                         targets = []
@@ -628,10 +650,10 @@
                         try {
                             if (targets) {
                                 const res = await axios({
-                                    url:apiUrl+'/customers/destroy',
-                                    method:'post',
-                                    data:{
-                                        id:targets
+                                    url: apiUrl + '/customers/destroy',
+                                    method: 'post',
+                                    data: {
+                                        id: targets
                                     },
                                     // config: { headers: {'Content-Type': 'application/x-www-form-urlencoded' }}
                                 })
@@ -672,7 +694,11 @@
             },
 
             resetCursor() {
-                this.where = {}
+                if (!this.is_android) {
+                    this.where = {}
+                } else {
+                    this.where = {'customer_no': this.customer_no}
+                }
                 this.start = 0
                 this.currentPage = 1
             }

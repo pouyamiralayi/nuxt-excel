@@ -20,11 +20,11 @@
     >
       <div class="card-body">
         <h5 class="card-title subtitle-mini">
-          <p class="label">نام فایل</p>
+          <p class="label">:نام فایل</p>
           <span class="ml-1">📝</span>{{file.name}}
         </h5>
         <div class="card-text subtitle-mini">
-          <p class="label">تاریخ بارگذاری </p>&nbsp;{{file.created_at | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است'
+          <p class="label">:تاریخ بارگذاری </p>&nbsp;{{file.created_at | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است'
           }}
         </div>
         <b-badge

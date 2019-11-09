@@ -23,6 +23,7 @@
               >
                 <b-form-input
                   id="email"
+                  dir="rtl"
                   v-model="email"
                   type="text"
                   :autofocus="true"
@@ -39,6 +40,7 @@
                   v-model="password"
                   label="password"
                   type="password"
+                  dir="rtl"
                   class="form-control"
                   :autofocus="true"
                   placeholder="رمز عبور را وارد نمایید"
@@ -120,6 +122,7 @@
           this.$router.push('dashboard')
         } catch (err) {
           // this.loading = false
+          //   console.log(err)
           alert(err.message || 'An error occurred.')
         }
       },

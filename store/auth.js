@@ -22,6 +22,9 @@ export const getters = {
   username: state => {
     return state.user && state.user.username
   },
+  role: state => {
+    return state.user && state.user.role && state.user.role.name
+  },
   token: state => {
     return state.user && state.user.jwt
   },

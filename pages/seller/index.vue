@@ -113,14 +113,14 @@
               <b-button @click="searchProduct">جستجو</b-button>
             </div>
           </div>
-          <b-col align-h="start" v-if="!is_android">
-            <b-col class="">
+          <b-col align-h="start">
+            <b-col class="" v-if="!is_android">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
             </b-col>
             <b-col class="">
               &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
             </b-col>
-            <b-col class="">
+            <b-col class="" v-if="!is_android">
               <b-button variant="warning" class="mt-1" v-b-modal.modal-file dir="rtl">مدیریت فایل</b-button>
             </b-col>
           </b-col>
@@ -310,6 +310,11 @@
             if(!this.is_android){
               this.where = {}
             } else{
+                if(!this.seller_no){
+                    this.$router.push('/')
+                    this.$store.commit('auth/setUser',null)
+                    return
+                }
                 this.where = {'seller_no':this.seller_no}
             }
             this.start = 0
@@ -332,6 +337,11 @@
                resp = await axios.get(apiUrl + '/sellers/count')
             }
             else {
+                if(!this.seller_no){
+                    this.$router.push('/')
+                    this.$store.commit('auth/setUser',null)
+                    return
+                }
                resp = await axios.get(apiUrl + '/sellers/count?seller_no'+this.seller_no)
             }
             if (resp && resp.data) {

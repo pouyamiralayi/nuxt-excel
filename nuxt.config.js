@@ -17,8 +17,8 @@ export default {
     ]
   },
   env: {
-    apiUrl: 'http://127.0.0.1:1337'
-    // apiUrl: 'http://10.30.205.75:1339'
+    // apiUrl: 'http://127.0.0.1:1337'
+    apiUrl: 'http://10.30.205.75:1339'
   },
   /*
   ** Customize the progress-bar color

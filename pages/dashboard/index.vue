@@ -252,6 +252,7 @@
             if (user && user.role && user.role.name) {
                 if (user.role.name == "Authenticated") {
                     this.is_android = false
+                    this.customer_no = ''
                     console.log(user.role.name)
                 } else if (user.role.name == 'android') {
                     this.is_android = true

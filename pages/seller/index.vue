@@ -245,10 +245,11 @@
           if (user && user.role && user.role.name) {
               if (user.role.name == "Authenticated") {
                   this.is_android = false
+                  this.seller_no = ''
                   console.log(user.role.name)
               } else if (user.role.name == 'android') {
                   this.is_android = true
-                  this.customer_no = this.$store.getters['auth/username']
+                  this.seller_no = this.$store.getters['auth/username']
                   console.log(user.role.name)
               } else {
                   console.log('NO ROLE!')
@@ -321,7 +322,7 @@
             this.currentPage = 1
         },
         async reload(){
-            this.loading = true
+            // this.loading = true
             const client = this.$apolloProvider.defaultClient
             await client.queryManager.fetchQueryRejectFns;
             await client.clearStore()
@@ -342,7 +343,7 @@
                     this.$store.commit('auth/setUser',null)
                     return
                 }
-               resp = await axios.get(apiUrl + '/sellers/count?seller_no'+this.seller_no)
+               resp = await axios.get(apiUrl + '/sellers/count?seller_no='+this.seller_no)
             }
             if (resp && resp.data) {
                 this.totalPages = Math.ceil(resp.data / 100)
@@ -354,7 +355,7 @@
                 console.log('total pages: ', this.totalPages)
             } else {
                 alert("داده ای یافت نشد.")
-                this.loading = false
+                // this.loading = false
                 return
             }
             this.loading = false

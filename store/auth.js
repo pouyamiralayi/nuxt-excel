@@ -1,4 +1,3 @@
-
 import Cookies from 'js-cookie'
 
 export const state = () => {
@@ -19,11 +18,11 @@ export const mutations = {
 }
 
 export const getters = {
+  user: state => {
+    return state.user
+  },
   username: state => {
     return state.user && state.user.username
-  },
-  role: state => {
-    return state.user && state.user.role && state.user.role.name
   },
   token: state => {
     return state.user && state.user.jwt

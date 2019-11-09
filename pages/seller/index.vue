@@ -38,11 +38,11 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <div class="form-group mt-4">
               <b-button type="submit" variant="success" @click="searchRangeGlobal">جستجو</b-button>&nbsp;&nbsp;&nbsp;
-              <b-button type="submit" variant="danger" @click="removeRangeGlobal">حذف</b-button>
+              <b-button type="submit" variant="danger" @click="removeRangeGlobal" v-if="!is_android">حذف</b-button>
             </div>
           </div>
         </client-only>
-        <client-only>
+        <client-only v-if="!is_android">
           <div style="display: flex; justify-content: flex-start">
             <div class="form-group mt-3">
               <input v-model="seller_no" type="text" class="form-control pt-2 pb-2 mt-2" placeholder="کد فروشنده را وارد نمایید...">
@@ -89,7 +89,7 @@
           <div slot="modal-footer"></div>
         </b-modal>
         <b-row aling-h="start">
-          <div class="col-md-3">
+          <div class="col-md-3" v-if="!is_android">
             <div class="form-group mt-3">
               <input v-model="seller_no_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی کد فروشنده...">
             </div>
@@ -97,7 +97,7 @@
               <b-button @click="searchSellerNo">جستجو</b-button>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-3" v-if="!is_android">
             <div class="form-group mt-3">
               <input v-model="seller_name_query" type="text" class="form-control pt-4 pb-4" placeholder="جستجوی نام فروشنده...">
             </div>
@@ -113,7 +113,7 @@
               <b-button @click="searchProduct">جستجو</b-button>
             </div>
           </div>
-          <b-col align-h="start">
+          <b-col align-h="start" v-if="!is_android">
             <b-col class="">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
             </b-col>
@@ -241,6 +241,28 @@
           },
       },
       async created(){
+          const user = this.$store.getters['auth/user']
+          if (user && user.role && user.role.name) {
+              if (user.role.name == "Authenticated") {
+                  this.is_android = false
+                  console.log(user.role.name)
+              } else if (user.role.name == 'android') {
+                  this.is_android = true
+                  this.customer_no = this.$store.getters['auth/username']
+                  console.log(user.role.name)
+              } else {
+                  console.log('NO ROLE!')
+                  this.$router.push('/')
+                  this.$store.commit('auth/setUser',null)
+                  return
+              }
+          }
+          else {
+              console.log('NO ROLE!')
+              this.$router.push('/')
+              this.$store.commit('auth/setUser',null)
+              return
+          }
           await this.$apolloHelpers.onLogin(`${this.$store.getters['auth/token']}`)
           this.reload()
       },
@@ -253,6 +275,7 @@
       },
     data() {
       return {
+          is_android:false,
           where:{},
           seller_no_query:'',
           seller_name_query:'',
@@ -284,7 +307,11 @@
     },
     methods: {
         resetCursor() {
-            this.where = {}
+            if(!this.is_android){
+              this.where = {}
+            } else{
+                this.where = {'seller_no':this.seller_no}
+            }
             this.start = 0
             this.currentPage = 1
         },
@@ -296,11 +323,18 @@
             this.resetCursor()
             if (!this.isLoggedIn) {
                 this.$router.push('/')
+                this.$store.commit('auth/setUser',null)
                 return
             }
             axios.defaults.headers.common.Authorization = 'Bearer ' + this.$store.getters['auth/token'];
-            const resp = await axios.get(apiUrl + '/sellers/count')
-            if (resp.data) {
+            let resp = null
+            if(!this.is_android){
+               resp = await axios.get(apiUrl + '/sellers/count')
+            }
+            else {
+               resp = await axios.get(apiUrl + '/sellers/count?seller_no'+this.seller_no)
+            }
+            if (resp && resp.data) {
                 this.totalPages = Math.ceil(resp.data / 100)
                 if (!this.totalPages) {
                     alert("داده ای یافت نشد.")
@@ -323,6 +357,7 @@
             }
             if (!this.isLoggedIn) {
                 this.$router.push('/')
+                this.$store.commit('auth/setUser',null)
                 return
             }
             const resp = await axios.get(apiUrl + `/sellers/count?seller_no_contains=${this.seller_no_query}`)
@@ -350,6 +385,7 @@
             }
             if (!this.isLoggedIn) {
                 this.$router.push('/')
+                this.$store.commit('auth/setUser',null)
                 return
             }
             const resp = await axios.get(apiUrl + `/sellers/count?seller_name_contains=${this.seller_name_query}`)
@@ -377,10 +413,18 @@
             }
             if (!this.isLoggedIn) {
                 this.$router.push('/')
+                this.$store.commit('auth/setUser',null)
                 return
             }
-            const resp = await axios.get(apiUrl + '/sellers/count?product_contains='+this.seller_product_query)
-            if (resp.data) {
+            this.loading = true
+            let resp = null
+            if(!this.is_android){
+              resp = await axios.get(apiUrl + '/sellers/count?product_contains='+this.seller_product_query)
+            }
+            else{
+              resp = await axios.get(apiUrl + '/sellers/count?product_contains='+this.seller_product_query+'&seller_no='+this.seller_no)
+            }
+            if (resp && resp.data) {
                 // console.log(resp.data)
                 this.totalPages = Math.ceil(resp.data / 100)
                 if (!this.totalPages) {
@@ -390,6 +434,7 @@
                 console.log('total pages: ', this.totalPages)
             } else {
                 alert("داده ای یافت نشد.")
+                this.loading = false
                 return
             }
             this.resetCursor()
@@ -410,7 +455,13 @@
                 this.loading = true
                 const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                 const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                const response = await axios.get(apiUrl + `/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                let response = null
+                if(!this.is_android){
+                   response = await axios.get(apiUrl + `/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                }
+                else {
+                   response = await axios.get(apiUrl + `/sellers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&seller_no=${this.seller_no}`)
+                }
                 if (response.data == null || !response.data) {
                     alert("داده ای یافت نشد")
                     this.loading = false

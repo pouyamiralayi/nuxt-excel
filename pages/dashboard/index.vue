@@ -248,21 +248,27 @@
             },
         },
         async created() {
-            //"Authenticated"
-            //"android"
-            const role = this.$store.getters['auth/role']
-            if (role) {
-                if (role === 'authenticated') {
+            const user = this.$store.getters['auth/user']
+            if (user && user.role && user.role.name) {
+                if (user.role.name == "Authenticated") {
                     this.is_android = false
-                    console.log(role)
-                } else if (role === 'android') {
+                    console.log(user.role.name)
+                } else if (user.role.name == 'android') {
                     this.is_android = true
                     this.customer_no = this.$store.getters['auth/username']
-                    console.log(role)
+                    console.log(user.role.name)
                 } else {
+                    console.log('NO ROLE!')
                     this.$router.push('/')
+                    this.$store.commit('auth/setUser',null)
                     return
                 }
+            }
+            else {
+                console.log('NO ROLE!')
+                this.$router.push('/')
+                this.$store.commit('auth/setUser',null)
+                return
             }
             // console.log(this.$store.getters['auth/token'])
             await this.$apolloHelpers.onLogin(`${this.$store.getters['auth/token']}`)
@@ -324,6 +330,7 @@
                 /*check login*/
                 if (!this.isLoggedIn) {
                     this.$router.push('/')
+                    this.$store.commit('auth/setUser',null)
                     return
                 }
                 /*set auth headers*/
@@ -362,6 +369,7 @@
                 }
                 if (!this.isLoggedIn) {
                     this.$router.push('/')
+                    this.$store.commit('auth/setUser',null)
                     return
                 }
                 this.loading = true
@@ -392,6 +400,7 @@
                 }
                 if (!this.isLoggedIn) {
                     this.$router.push('/')
+                    this.$store.commit('auth/setUser',null)
                     return
                 }
                 this.loading = true
@@ -422,6 +431,7 @@
                 }
                 if (!this.isLoggedIn) {
                     this.$router.push('/')
+                    this.$store.commit('auth/setUser',null)
                     return
                 }
                 this.loading = true
@@ -498,7 +508,13 @@
                     this.loading = true
                     const fdateFrom = moment(this.dateFromG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
                     const fdateTo = moment(this.dateToG, "jYYYY/jMM/jDD").format("YYYY-MM-DDTHH:mm:ss")
-                    const response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                    let response = null
+                    if(!this.is_android){
+                      response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}`)
+                    }
+                    else {
+                      response = await axios.get(apiUrl + `/customers/count?date_gte=${fdateFrom}&date_lt=${fdateTo}&customer_no=${this.customer_no}`)
+                    }
                     if (response.data == null || !response.data) {
                         alert("داده ای یافت نشد")
                         this.loading = false

@@ -4,6 +4,20 @@
     <b-spinner variant="success" type="grow"></b-spinner>
   </section>
   <b-row v-else class="container-fluid" align-h="center">
+    <b-row align-h="center" class="container-fluid">
+      <b-button
+        :disabled="currentPage === 1"
+        @click="movePage(1)"
+      >ابتدا</b-button>&nbsp;&nbsp;&nbsp;
+      <b-button
+        v-for="page in pages"
+        :key="page.name"
+        @click="movePage(page.name)"
+        :disabled="page.isDisabled"
+      >{{page.name}}</b-button>
+      &nbsp;&nbsp;&nbsp;<b-button
+      @click="movePage(totalPages)" :disabled="currentPage === totalPages">انتها</b-button>&nbsp;&nbsp;&nbsp;
+    </b-row>
     <b-modal id="modal-remove-excel" dir="" title="حذف فایل" busy>
       <p class="my-4 subtitle-mini" style="text-align: center"><span>😔</span>آیا از حذف اطمینان دارید؟</p>
       <b-form @submit.stop.prevent="removeFile" class="text-center">
@@ -37,49 +51,20 @@
       </div>
     </b-card>
     <p v-if="files && !files.length"><span>😔</span> <span>بدون نتیجه</span></p>
-
-    <!--    <div class="col-md-12">-->
-    <!--&lt;!&ndash;      <b-form dir="rtl" @submit.stop.prevent="sendFile">&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;        <b-form-group&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          label="نام فایل"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          label-cols="12"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          label-align="right"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          :invalid-feedback="invalidFeedback"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          :valid-feedback="validFeedback">&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          <b-form-input&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;            id="email"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;            v-model="fileName"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;            type="text"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;            :autofocus="true"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;            placeholder="نام فایل را وارد نمایید"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          />&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;        </b-form-group>&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;        <b-form-group&ndash;&gt;-->
-    <!--&lt;!&ndash;          label="فایل اکسل"&ndash;&gt;-->
-    <!--&lt;!&ndash;          label-cols="12"&ndash;&gt;-->
-    <!--&lt;!&ndash;          label-align="right">&ndash;&gt;-->
-    <!--&lt;!&ndash;          <b-form-file&ndash;&gt;-->
-    <!--&lt;!&ndash;            v-model="file"&ndash;&gt;-->
-    <!--&lt;!&ndash;            :state="Boolean(file)"&ndash;&gt;-->
-    <!--&lt;!&ndash;            placeholder="فایل را انتخاب نمایید"&ndash;&gt;-->
-    <!--&lt;!&ndash;            drop-placeholder="فایل را انتخاب نمایید"&ndash;&gt;-->
-    <!--&lt;!&ndash;            required&ndash;&gt;-->
-    <!--&lt;!&ndash;          >&ndash;&gt;-->
-    <!--&lt;!&ndash;          </b-form-file>&ndash;&gt;-->
-    <!--&lt;!&ndash;        </b-form-group>&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;        <b-form-group&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          label="مشتری"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          label-cols="12"&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          label-align="right">&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;          <b-form-select v-model="selected" :options="customersOptions"></b-form-select>&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;        </b-form-group>&ndash;&gt;&ndash;&gt;-->
-    <!--&lt;!&ndash;        <div class="w-100 text-right">&ndash;&gt;-->
-    <!--&lt;!&ndash;          <b-button :disabled="!file || loading" :variant="(file) ? 'success' : ''"&ndash;&gt;-->
-    <!--&lt;!&ndash;                    type="submit">تایید&ndash;&gt;-->
-    <!--&lt;!&ndash;          </b-button>&ndash;&gt;-->
-    <!--&lt;!&ndash;        </div>&ndash;&gt;-->
-    <!--&lt;!&ndash;      </b-form>&ndash;&gt;-->
-    <!--    </div>-->
+    <b-row align-h="center" class="container-fluid">
+      <b-button
+        :disabled="currentPage === 1"
+        @click="movePage(1)"
+      >ابتدا</b-button>&nbsp;&nbsp;&nbsp;
+      <b-button
+        v-for="page in pages"
+        :key="page.name"
+        @click="movePage(page.name)"
+        :disabled="page.isDisabled"
+      >{{page.name}}</b-button>
+      &nbsp;&nbsp;&nbsp;<b-button
+      @click="movePage(totalPages)" :disabled="currentPage === totalPages">انتها</b-button>&nbsp;&nbsp;&nbsp;
+    </b-row>
   </b-row>
 </template>
 
@@ -94,15 +79,23 @@
         async created() {
             this.loading = true
             axios.defaults.headers.common.Authorization = 'Bearer ' + this.$store.getters['auth/token'];
-            const response = await axios.get(apiUrl + '/upload/files')
-            if (response.data) {
-                this.files = response.data
+            const res = await axios.get(apiUrl + `/upload/files/count`)
+            if (res.data == null || !res.data) {
+                alert("داده ای یافت نشد")
+                this.loading = false
+                return
             }
-            this.loading = false
+            this.totalPages = Math.ceil(res.data.count / 100)
+            await this.getFiles()
         },
         name: "AddExcel",
         data() {
             return {
+                currentPage:1,
+                totalPages:null,
+                maxVisibleButtons:3,
+                start:0,
+                limit:100,
                 file_id: '',
                 files: [],
                 invalidFeedback: 'مشتری را مشخص نمایید',
@@ -111,16 +104,27 @@
                 file: false,
                 loading: false,
                 selected: null,
-                options: [
-                    // { value: null, text: 'Please select an option' },
-                    // { value: 'a', text: 'This is First option' },
-                    // { value: 'b', text: 'Selected Option' },
-                    // { value: { C: '3PO' }, text: 'This is an option with object value' },
-                    // { value: 'd', text: 'This one is disabled', disabled: true }
-                ]
             }
         },
         methods: {
+            async getFiles(){
+                try{
+                  const response = await axios.get(apiUrl + '/upload/files?_start='+this.start)
+                  if (response.data) {
+                      this.files = response.data
+                  }
+                }
+                catch(e) {console.log(e)}
+                this.loading = false
+            },
+            async movePage(i){
+                if(i <= 0){
+                    return
+                }
+                this.currentPage = i
+                this.start =  (i-1) * this.limit
+                await this.getFiles()
+            },
             showRemoveModal(id) {
                 this.file_id = id
                 this.$bvModal.show('modal-remove-excel')
@@ -179,14 +183,39 @@
             }
         },
         computed: {
-            // customersOptions() {
-            //   return this.$store.getters['customers/list'].map(customer => {
-            //     return {
-            //       value: customer.id,
-            //       text: customer.customer_name || customer.customer_phone_number,
-            //     }
-            //   })
-            // }
+            startPage() {
+                // When on the first page
+                console.log('currentPage: ',this.currentPage)
+                if (this.currentPage === 1) {
+                    return 1;
+                }
+                // When on the last page
+                if (this.currentPage === this.totalPages) {
+                    return this.totalPages - this.maxVisibleButtons;
+                }
+                // When in between
+                return this.currentPage - 1;
+            },
+            endPage() {
+                return Math.min(this.startPage + this.maxVisibleButtons - 1, this.totalPages);
+            },
+            pages() {
+                const pages = [];
+
+                for (let i = this.startPage;
+                     i <= this.endPage;
+                     i+= 1 ) {
+                    if(i<=0){
+                        continue
+                    }
+                    pages.push({
+                        name: i,
+                        isDisabled: i === this.currentPage
+                    });
+                }
+
+                return pages;
+            },
         }
     }
 </script>

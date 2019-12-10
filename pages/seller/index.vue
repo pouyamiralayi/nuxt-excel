@@ -157,10 +157,11 @@
               <br>
               <div class="card-text subtitle-mini"><p class="label">تاریخ:</p>&nbsp;{{ seller.date | moment("jYYYY/jMM/jDD") || 'تاریخ ثبت نشده است' }}</div>
               <br>
-              <div class="card-text subtitle-mini"><p class="label">تاریخ انقضا:</p>&nbsp;{{ seller.expire_date | moment("jYYYY/jMM/jDD") || 'تاریخ انقضا ثبت نشده است' }}</div>
               <br>
               <p class="card-text subtitle-mini">{{ seller.description || 'شرحی ثبت نشده است' }}</p>
               <div class="card-text subtitle-mini"><p class="label" style="color: cornflowerblue">نام محصول:</p>&nbsp;<span class="subtitle-mini" style="color: cornflowerblue">{{ seller.product || 'نام محصول ثبت نشده است' }}</span></div>
+              <br>
+              <div class="card-text subtitle-mini"><p class="label" style="color: orange">تاریخ سررسید:</p>&nbsp;<span class="subtitle-mini" style="color: orange">{{ seller.expire_date | moment("jYYYY/jMM/jDD") || 'تاریخ انقضا ثبت نشده است' }}</span></div>
               <br>
               <p class="card-text subtitle-mini"><span class="label">کد محصول:</span>&nbsp;{{ seller.product_no || 'کد محصول ثبت نشده است' }}</p>
               <div class="card-text subtitle-mini" ><p class="label" style="color: #41b883">قابل پرداخت:</p>&nbsp;<span class="subtitle-mini label" style="color: #41b883">{{ seller.payment || ' ثبت نشده است' }}</span></div>

@@ -1,11 +1,11 @@
 export const state = () => ({
   list: [],
   selected: {},
-  loading:true,
-  owed:null,
-  owned:null,
-  rem:null,
-  plus:null,
+  loading: true,
+  owed: null,
+  owned: null,
+  rem: null,
+  plus: null,
 })
 
 export const mutations = {
@@ -33,14 +33,30 @@ export const mutations = {
   emptyList(state) {
     state.list = []
   },
-  loading(state, loading){
+  loading(state, loading) {
     state.loading = loading
   },
-  setOwed(state, payload){
-    state.owed = payload.owed
-    state.owned = payload.owned
-    state.rem = payload.rem
-    state.plus = payload.plus
+  setOwed(state, payload) {
+    if (payload == null || payload == undefined || payload == {}) {
+      state.owed = null
+      state.owned = null
+      state.rem = null
+      state.plus = null
+    }
+    else {
+      if('owed' in payload){
+        state.owed = payload.owed
+      }
+      if('owned' in payload){
+        state.owned = payload.owned
+      }
+      if('rem' in payload){
+        state.rem = payload.rem
+      }
+      if('plus' in payload){
+        state.plus = payload.plus
+      }
+    }
   }
 }
 

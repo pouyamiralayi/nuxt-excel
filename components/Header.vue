@@ -84,6 +84,7 @@
             },
             logout() {
                 this.$store.commit('auth/logout')
+                this.$store.commit('customers/setOwed', null)
                 // this.$apolloHelpers.onLogout()
                 this.$router.push('/')
             }

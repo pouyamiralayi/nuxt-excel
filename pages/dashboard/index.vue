@@ -130,13 +130,13 @@
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
             </b-col>
             <b-col class="" v-if="is_android">
-              <b-button variant="success" class="mt-1">   {{this.owned ? this.owned : "بستانکار"}}<b-spinner variant="primary" type="grow" v-if="owedLoading" label="Spinning"></b-spinner>   </b-button>
+              <span>بستانکار:</span>&nbsp;&nbsp;<b-button variant="success" class="mt-1">   {{this.owned | currency }}<b-spinner variant="primary" type="grow" v-if="owedLoading" label="Spinning"></b-spinner>   </b-button>
             </b-col>
             <b-col class="" v-if="is_android">
-              <b-button variant="warning" class="mt-1">   {{this.owed ? this.owed : "بدهکار"}}    <b-spinner variant="primary"   type="grow" v-if="owedLoading" label="Spinning"></b-spinner></b-button>
+              <span>بدهکار:</span>&nbsp;&nbsp;<b-button variant="warning" class="mt-1">   {{this.owed | currency }}    <b-spinner variant="primary"   type="grow" v-if="owedLoading" label="Spinning"></b-spinner></b-button>
             </b-col>
             <b-col class="" v-if="is_android">
-              <b-button :variant="plus ? 'success' : 'danger'" class="mt-1">   {{this.rem ? this.rem : "باقیمانده"}}   <b-spinner type="grow"   v-if="owedLoading" variant="primary" label="Spinning"></b-spinner> </b-button>
+              <span>باقیمانده:</span>&nbsp;&nbsp;<b-button :variant="plus ? 'success' : 'danger'" class="mt-1">   {{ this.rem | currency }}   <b-spinner type="grow"   v-if="owedLoading" variant="primary" label="Spinning"></b-spinner> </b-button>
             </b-col>
             <b-col class="">
               &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
@@ -349,9 +349,9 @@
                 const owed = this.$store.getters['customers/owed']
                 if( owed == null || owed == ''){
                   this.owedLoading = true
-                  const resp2 = axios.get(apiUrl + '/customers/owed').then(resp2 => {
+                  axios.get(apiUrl + '/customers/owed?customer_no='+this.customer_no).then(resp2 => {
                       if(resp2 && resp2.data){
-                          // console.log(resp2.data)
+                          console.log(resp2.data)
                           this.$store.commit('customers/setOwed', resp2.data)
                           this.owedLoading = false
                       }

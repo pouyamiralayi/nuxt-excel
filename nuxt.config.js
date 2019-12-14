@@ -31,7 +31,10 @@ export default {
   /*
   ** Plugins to load before mounting the App
   */
-  plugins: ['~/plugins/moment-jalaali'],
+  plugins: [
+    '~/plugins/moment-jalaali',
+    '~/plugins/filters.js'
+  ],
   /*
   ** Nuxt.js dev-modules
   */

@@ -2,7 +2,10 @@ export const state = () => ({
   list: [],
   selected: {},
   loading:true,
-
+  owed:null,
+  owned:null,
+  rem:null,
+  plus:null,
 })
 
 export const mutations = {
@@ -32,6 +35,12 @@ export const mutations = {
   },
   loading(state, loading){
     state.loading = loading
+  },
+  setOwed(state, payload){
+    state.owed = payload.owed
+    state.owned = payload.owned
+    state.rem = payload.rem
+    state.plus = payload.plus
   }
 }
 
@@ -41,6 +50,10 @@ export const getters = {
     return state.list.find(item => item.id === id)
   },
   selected: state => state.selected,
-  loading: state => state.loading
+  loading: state => state.loading,
+  owed: state => state.owed,
+  owned: state => state.owned,
+  rem: state => state.rem,
+  plus: state => state.plus
 
 }

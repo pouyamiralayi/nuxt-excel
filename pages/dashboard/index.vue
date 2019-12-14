@@ -129,6 +129,15 @@
             <b-col class="" v-if="!is_android">
               <b-button variant="success" class="mt-1" v-b-modal.modal-new dir="rtl">تعریف اکسل</b-button>
             </b-col>
+            <b-col class="" v-if="is_android">
+              <b-button variant="success" class="mt-1">   {{this.owned ? this.owned : "بستانکار"}}<b-spinner variant="primary" type="grow" v-if="owedLoading" label="Spinning"></b-spinner>   </b-button>
+            </b-col>
+            <b-col class="" v-if="is_android">
+              <b-button variant="warning" class="mt-1">   {{this.owed ? this.owed : "بدهکار"}}    <b-spinner variant="primary"   type="grow" v-if="owedLoading" label="Spinning"></b-spinner></b-button>
+            </b-col>
+            <b-col class="" v-if="is_android">
+              <b-button :variant="plus ? 'success' : 'danger'" class="mt-1">   {{this.rem ? this.rem : "باقیمانده"}}   <b-spinner type="grow"   v-if="owedLoading" variant="primary" label="Spinning"></b-spinner> </b-button>
+            </b-col>
             <b-col class="">
               &nbsp;&nbsp;&nbsp;<b-button variant="info" class="mt-1" @click="reload" dir="rtl">بارگذاری مجدد</b-button>
             </b-col>
@@ -286,6 +295,7 @@
         },
         data() {
             return {
+                owedLoading:null,
                 is_android: false,
                 where_id: {},
                 targets: [],
@@ -336,6 +346,17 @@
                 }
                 /*set auth headers*/
                 axios.defaults.headers.common.Authorization = 'Bearer ' + this.$store.getters['auth/token'];
+                const owed = this.$store.getters['customers/owed']
+                if( owed == null || owed == ''){
+                  this.owedLoading = true
+                  const resp2 = axios.get(apiUrl + '/customers/owed').then(resp2 => {
+                      if(resp2 && resp2.data){
+                          // console.log(resp2.data)
+                          this.$store.commit('customers/setOwed', resp2.data)
+                          this.owedLoading = false
+                      }
+                  })
+                }
                 /*calculates totalPages*/
                 let resp = null
                 if (!this.is_android) {
@@ -731,6 +752,18 @@
             }
         },
         computed: {
+            owed(){
+                return this.$store.getters['customers/owed']
+            },
+            owned(){
+                return this.$store.getters['customers/owned']
+            },
+            rem(){
+                return this.$store.getters['customers/rem']
+            },
+            plus(){
+                return this.$store.getters['customers/plus']
+            },
             startPage() {
                 console.log('currentPage: ', this.currentPage)
                 // When on the first page

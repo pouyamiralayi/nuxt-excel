@@ -20,7 +20,7 @@
     "format-currency": "^1.0.0",
     "graphql": "^14.5.8",
     "js-cookie": "^2.2.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "nuxt": "^2.0.0",
     "qs": "^6.9.0",
     "strapi-sdk-javascript": "^0.3.3",
